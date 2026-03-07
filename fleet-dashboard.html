@@ -20,6 +20,7 @@
     --green:     #3ddc84;
     --yellow:    #f5c842;
     --red:       #e84040;
+    --blue:      #4aa8ff;
     --text:      #ffffff;
     --text2:     #d0cce8;
     --muted:     #8880aa;
@@ -31,91 +32,115 @@
   .shell { display:flex; flex-direction:column; width:100vw; height:100vh; }
 
   /* HEADER */
-  .header { display:flex; align-items:center; justify-content:space-between; padding:0 22px; height:56px; background:var(--navy-dark); border-bottom:3px solid var(--orange); flex-shrink:0; }
+  .header { display:flex; align-items:center; justify-content:space-between; padding:0 22px; height:58px; background:var(--navy-dark); border-bottom:3px solid var(--orange); flex-shrink:0; }
   .logo { display:flex; align-items:baseline; gap:12px; }
-  .logo-text { font-family:var(--font-head); font-weight:900; font-size:28px; letter-spacing:0.06em; text-transform:uppercase; color:#fff; }
+  .logo-text { font-family:var(--font-head); font-weight:900; font-size:26px; letter-spacing:0.06em; text-transform:uppercase; }
   .logo-text em { font-style:normal; color:var(--orange); }
-  .logo-sub { font-family:var(--font-head); font-size:14px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--cream); opacity:0.6; }
-  .header-right { display:flex; align-items:center; gap:24px; }
-  .clock { font-family:var(--font-head); font-size:24px; font-weight:700; letter-spacing:0.1em; color:#fff; }
-  .live-badge { display:flex; align-items:center; gap:7px; font-family:var(--font-head); font-size:13px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--green); background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.35); padding:5px 14px; border-radius:20px; }
+  .logo-sub { font-family:var(--font-head); font-size:13px; font-weight:700; letter-spacing:0.2em; text-transform:uppercase; color:var(--cream); opacity:0.55; }
+  .header-right { display:flex; align-items:center; gap:22px; }
+  .clock { font-family:var(--font-head); font-size:22px; font-weight:700; letter-spacing:0.1em; color:#fff; }
+  .live-badge { display:flex; align-items:center; gap:6px; font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--green); background:rgba(61,220,132,0.12); border:1px solid rgba(61,220,132,0.35); padding:4px 12px; border-radius:20px; }
   .live-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite; }
   @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.3;transform:scale(0.6)} }
 
-  /* MAIN */
+  /* THREE PANEL LAYOUT */
   .main { display:flex; flex:1; min-height:0; }
 
-  /* MAP */
-  .map-panel { flex:1.3; position:relative; }
+  /* MAP — center */
+  .map-panel { flex:1.4; position:relative; order:2; }
   #map { width:100%; height:100%; }
-  .map-overlay { position:absolute; top:12px; left:12px; z-index:1000; background:rgba(24,22,42,0.92); border:1px solid var(--border); border-left:3px solid var(--orange); border-radius:4px; padding:8px 14px; font-family:var(--font-head); font-size:14px; font-weight:600; letter-spacing:0.06em; color:var(--text2); backdrop-filter:blur(8px); }
+  .map-overlay { position:absolute; top:10px; left:10px; z-index:1000; background:rgba(24,22,42,0.92); border:1px solid var(--border); border-left:3px solid var(--orange); border-radius:4px; padding:7px 13px; font-family:var(--font-head); font-size:13px; font-weight:600; letter-spacing:0.06em; color:var(--text2); backdrop-filter:blur(8px); }
   .map-overlay b { color:#fff; font-weight:900; }
 
-  /* RIGHT PANEL */
-  .right-panel { width:440px; display:flex; flex-direction:column; background:var(--panel); border-left:2px solid var(--border); flex-shrink:0; overflow:hidden; }
+  /* LEFT PANEL — vehicles */
+  .left-panel { width:340px; order:1; display:flex; flex-direction:column; background:var(--panel); border-right:2px solid var(--border); flex-shrink:0; overflow:hidden; }
 
-  /* Summary */
-  .summary-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); border-bottom:2px solid var(--border); flex-shrink:0; }
-  .stat-block { background:var(--panel2); padding:12px 16px; text-align:center; }
-  .stat-num { font-family:var(--font-head); font-size:36px; font-weight:900; line-height:1; }
-  .stat-label { font-family:var(--font-head); font-size:11px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-top:2px; }
-  .s-moving .stat-num { color:var(--green); }
-  .s-parked .stat-num { color:var(--teal); }
-  .s-alert  .stat-num { color:var(--yellow); }
+  /* RIGHT PANEL — employees */
+  .right-panel { width:360px; order:3; display:flex; flex-direction:column; background:var(--panel); border-left:2px solid var(--border); flex-shrink:0; overflow:hidden; }
 
-  /* Section head */
-  .section-head { padding:10px 16px 8px; font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--border); flex-shrink:0; }
+  /* SHARED PANEL PARTS */
+  .panel-header { padding:0 14px; height:42px; display:flex; align-items:center; justify-content:space-between; background:var(--panel2); border-bottom:2px solid var(--border); flex-shrink:0; }
+  .panel-title { font-family:var(--font-head); font-size:13px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); }
+  .panel-stats { display:flex; gap:12px; }
+  .pstat { font-family:var(--font-head); font-size:14px; font-weight:900; }
+  .pstat span { font-size:10px; font-weight:600; letter-spacing:0.1em; color:var(--muted); margin-left:3px; }
+  .pstat.green { color:var(--green); }
+  .pstat.teal  { color:var(--teal); }
+  .pstat.yellow{ color:var(--yellow); }
+  .pstat.blue  { color:var(--blue); }
 
-  /* Vehicle list */
-  .vehicle-list { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
+  .panel-scroll { flex:1; overflow-y:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; }
 
-  .vc { border-bottom:1px solid var(--border); padding:14px 16px; border-left:4px solid transparent; }
+  /* VEHICLE CARDS */
+  .vc { border-bottom:1px solid var(--border); padding:11px 14px; border-left:3px solid transparent; }
   .vc.moving-card { border-left-color:var(--green); }
   .vc.parked-card  { border-left-color:var(--teal); }
   .vc.idle-card    { border-left-color:var(--yellow); }
-
-  .vc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:3px; }
-  .vc-name { font-family:var(--font-head); font-size:20px; font-weight:900; color:#fff; letter-spacing:0.04em; }
-
-  .pill { font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 10px; border-radius:20px; }
+  .vc-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+  .vc-name { font-family:var(--font-head); font-size:17px; font-weight:900; color:#fff; }
+  .pill { font-family:var(--font-head); font-size:10px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:2px 7px; border-radius:20px; white-space:nowrap; }
   .pill-moving { background:rgba(61,220,132,0.15); color:var(--green); border:1px solid rgba(61,220,132,0.4); }
   .pill-parked  { background:rgba(148,183,187,0.15); color:var(--teal);  border:1px solid rgba(148,183,187,0.4); }
   .pill-idle    { background:rgba(245,200,66,0.15);  color:var(--yellow);border:1px solid rgba(245,200,66,0.4); }
-
-  .vc-addr { font-size:12px; font-weight:600; color:var(--text2); margin-bottom:10px; }
-
-  /* Maintenance rows */
-  .vc-maint { display:flex; flex-direction:column; gap:6px; }
-  .maint-row { display:flex; align-items:center; gap:8px; }
-  .maint-label { font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--text2); width:106px; flex-shrink:0; }
-  .maint-bar-wrap { flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; }
-  .maint-bar { height:100%; border-radius:3px; transition:width 0.6s ease; }
-  .maint-status { font-family:var(--font-head); font-size:13px; font-weight:900; letter-spacing:0.08em; width:52px; text-align:right; flex-shrink:0; }
-
-  /* Battery row — special */
-  .battery-row { display:flex; align-items:center; gap:8px; }
-  .battery-label { font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:0.07em; text-transform:uppercase; color:var(--text2); width:106px; flex-shrink:0; }
-  .battery-bar-wrap { flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; overflow:hidden; }
-  .battery-bar { height:100%; border-radius:3px; }
-  .battery-val { font-family:var(--font-head); font-size:13px; font-weight:900; letter-spacing:0.06em; width:52px; text-align:right; flex-shrink:0; }
-
+  .vc-addr { font-size:11px; font-weight:600; color:var(--muted); margin-bottom:8px; }
+  .vc-maint { display:flex; flex-direction:column; gap:4px; }
+  .maint-row { display:flex; align-items:center; gap:6px; }
+  .maint-label { font-family:var(--font-head); font-size:11px; font-weight:700; letter-spacing:0.06em; text-transform:uppercase; color:var(--text2); width:88px; flex-shrink:0; }
+  .maint-bar-wrap { flex:1; height:5px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+  .maint-bar { height:100%; border-radius:3px; }
+  .maint-status { font-family:var(--font-head); font-size:11px; font-weight:900; width:44px; text-align:right; flex-shrink:0; }
   .ok     { color:var(--green); }
   .warn   { color:var(--yellow); }
   .urgent { color:var(--red); }
 
+  /* EMPLOYEE CARDS */
+  .ec { border-bottom:1px solid var(--border); padding:11px 14px; border-left:3px solid transparent; }
+  .ec.active-emp  { border-left-color:var(--green); }
+  .ec.idle-emp    { border-left-color:var(--yellow); }
+  .ec.done-emp    { border-left-color:var(--muted); opacity:0.65; }
+
+  .ec-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:2px; }
+  .ec-name { font-family:var(--font-head); font-size:17px; font-weight:900; color:#fff; }
+  .ec-clock { font-family:var(--font-head); font-size:11px; font-weight:700; color:var(--muted); }
+
+  /* Job progress bar */
+  .ec-progress { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+  .job-bar-wrap { flex:1; height:6px; background:rgba(255,255,255,0.07); border-radius:3px; overflow:hidden; }
+  .job-bar { height:100%; border-radius:3px; background:var(--green); transition:width 0.6s ease; }
+  .job-count { font-family:var(--font-head); font-size:13px; font-weight:900; color:var(--green); white-space:nowrap; }
+
+  /* Current status */
+  .ec-status { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
+  .status-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--font-head); font-size:12px; font-weight:700;
+    letter-spacing:0.08em; text-transform:uppercase;
+    padding:3px 9px; border-radius:4px;
+    white-space:nowrap; flex-shrink:0;
+  }
+  .sb-omw      { background:rgba(74,168,255,0.15); color:var(--blue);   border:1px solid rgba(74,168,255,0.4); }
+  .sb-working  { background:rgba(61,220,132,0.15); color:var(--green);  border:1px solid rgba(61,220,132,0.4); }
+  .sb-finished { background:rgba(245,200,66,0.15);  color:var(--yellow); border:1px solid rgba(245,200,66,0.4); }
+  .sb-done     { background:rgba(136,128,170,0.15); color:var(--muted);  border:1px solid rgba(136,128,170,0.4); }
+  .sb-scheduled{ background:rgba(148,183,187,0.15); color:var(--teal);   border:1px solid rgba(148,183,187,0.4); }
+
+  .status-detail { text-align:right; }
+  .status-customer { font-size:12px; font-weight:700; color:var(--text2); }
+  .status-since { font-size:11px; color:var(--muted); margin-top:1px; }
+
   /* Footer */
-  .footer { padding:7px 16px; border-top:1px solid var(--border); font-size:11px; font-weight:600; color:var(--muted); letter-spacing:0.05em; text-align:center; flex-shrink:0; }
-  .api-mode { color:var(--yellow); }
-  .api-mode.live  { color:var(--green); }
-  .api-mode.error { color:var(--red); }
+  .footer { padding:5px 16px; border-top:1px solid var(--border); font-size:10px; font-weight:600; color:var(--muted); letter-spacing:0.05em; text-align:center; flex-shrink:0; display:flex; justify-content:center; gap:16px; }
+  .api-badge { display:flex; align-items:center; gap:5px; }
+  .api-dot { width:6px; height:6px; border-radius:50%; background:var(--muted); }
+  .api-dot.live { background:var(--green); }
+  .api-dot.error { background:var(--red); }
 </style>
 </head>
 <body>
 <div class="shell">
   <header class="header">
     <div class="logo">
-      <div class="logo-text"><em>LEAK</em>HOUNDS</div>
-      <div class="logo-sub">Fleet</div>
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFcAAAAwCAIAAADrW3HZAAABCGlDQ1BJQ0MgUHJvZmlsZQAAeJxjYGA8wQAELAYMDLl5JUVB7k4KEZFRCuwPGBiBEAwSk4sLGHADoKpv1yBqL+viUYcLcKakFicD6Q9ArFIEtBxopAiQLZIOYWuA2EkQtg2IXV5SUAJkB4DYRSFBzkB2CpCtkY7ETkJiJxcUgdT3ANk2uTmlyQh3M/Ck5oUGA2kOIJZhKGYIYnBncAL5H6IkfxEDg8VXBgbmCQixpJkMDNtbGRgkbiHEVBYwMPC3MDBsO48QQ4RJQWJRIliIBYiZ0tIYGD4tZ2DgjWRgEL7AwMAVDQsIHG5TALvNnSEfCNMZchhSgSKeDHkMyQx6QJYRgwGDIYMZAKbWPz9HbOBQAAAet0lEQVR42t16Z3hc1bnuartNH2nUe7ctW5Z7xQ0bY8AYgzFgegsnCSGEBHJIbpInOcnJzXkuAUJyAwcI3YkpNtU0g3Fvkixb1ZbVZySNpOll17XW/SHjmNgYUn7c5+xfe/bsmbX2t779vu/3rg+Dcw4IIYKIAw4AdLts37jttjkzpjcdbSYY2G3Eshj//DYIIfgfcXzpYygSMUxrzcoldXVrdS0ZT/VHEphAhDBNxEe7u4+3nxgAACAE2emw/E+JwsTSOh229Zev8XqLIaQep7OjDyTi0bk5ZqVXlSVh3LAHUmTEsqdTPZ/ufHcoGEcIMcb+2XlAiBCklF14bf6hgyOEAAAXmOQXxsMYUcrWrVk+vW5dYZ5ILfrSO91FLPC/pg9jM6kn9VyRpAkxvc5OK3/HSLZpE3bt2tLZ5YcQQcj/P08KCCHn558h+ULQOAcAtJ84NWWSPzjq7B3SHKOD8/OCSmiEpeCoDoLUqnTA1GCs0jt00cyqp7vLxBWbZOnV5tY+zi880FdMLi8n8957rrO7fH/3778yEzjAQN+85Z1DjR1fNr/z554goBuuW5dnFSwd/PSYmDeHdnmzXYUC64/rXECC4PioBzEiZ1b73uzPzK/KTqWGT51oaDja9vevDwAAigL+46M/GfUrw82dgkj+xVFgFHh9K9ZW3vuDn/T2j5w3EOcZEiEkIGTB/DL/8QXe5GfjpLjK29kb9xQKxOZ6usOZIeFJTi0PJe2DoSVZJGR523yV+d6raifXbXtnWyKpf55VXweWIOO8tChHkHOaXt0i2qWoJQgQAAg4P/0nEIKzyWji+tkXz9yJEDzz8fQ5YwgT5/G29rKshfOm9faPIAQp/aooQAgZY6XlpW4m1+NhG+a5RGsL2VdWpx457glR73X5o3VCBEEuKkh0iv6YmRUfv9JtdAkDbyTqr7hs7eYtryGEOGdfF505QBhxy3LapMM0J8YFZpiWRUVJRBBOBNQwTM45BIADIAgCIQhwoOvGBBKJAsEEc85N3aKMS6IAIdRVAwAgS4LB8SWONKQWhPjLZkHOTQRKaV5hsRyNFkh6nJFLbCNb1HJ/r6hz/HB+lwwtJkmyE3cn5JdbfcMZFQmTjnwYnTMzRwMMIzTxKv6dWQsghIwDG6K6yfLzPV6fx98bSKkGAFCUSUlNIYSEMoYxHB0ZC4dTjIOqijzFJnPOh4bC8XiSIFBQmul0KN3dQyaldbVFAFgDfSMqY4BxcEFpQ87BEg4AkGR3BlMFQE0uZfLY0GA0lp39+PQ2VScalAZU8m6bt1EoQVmO3JKii+uLtr3ynrO8zKa2PPL4axB+7UQ4NzMQSqa0225fedNq9623P3+gByFmllcWPPvkJhmmCMKSaPzyhy8//pb5owcvu+fmOgw0iKXWxq4HfvRWTwg9+NBVi8uSq695FmSXbXnptqb33rn754NMUL5y3C+BIogJpwQDBqwPg3KPnFXCjfvbazDgMS4mvAU8n051xW757rX/9uB2yyDlJYVdO/f6JlVUV5e1dXQTgi2L/qNwhjinND7ELRMAAQDOOYRW6uSudw40jDntuO1kOL8g6/praocPf/DuO62Vs+rXXD55Wa3QscMCwLCSQVM36qdXyGxo987jKZMoEgBfNRd0Xs6A3EozbDDUHVLfUktW1UWvnDXuyhkCteVDeVPrFs34wf3XGwnLMI07b196vLFVRsbqyXo1Dyxbut5u+2dCcGZeAjgL/CSRdJyMPvBk4Lv/Hdrbg112Apg5MqL+6o3kB51OKLkhgYBzABAHMBpN1U7KM0Kjh09oWMBfB6jJealTS0UGhOzdPfFe7oO5tjWVSbuSNS07uistnhw2du06SZQMT0F5+9HmG++8hsh37XjjPd1yrS0ZOXTCfuP1N/WcattzqFnXrTO1xt8vLvnZgG0YZlX9lId/PE8h9P2396QMihACnFq6ykwDQgY4ABBCyoBs+8Z9Gy++uLK7eWvvKBcJ+DpS7m9zYQJ1e7u7SK6vx7APkswFldSjyCmdQWJzGiPZGYrZtyMxNkQhwUSIj3Rfu8r20M9vPWlU/6FjDrZVjY7X5uavvX3TJlkWOeeMsbNDgBBCEJ6mP3D6BAD45QsGIQSmxatr8352R+ZDG4WqDNVkyDKt3KqKn/3y9rVrZ5m6CSEEEDBGBYfn3huyS0BnTnnx+kVOTafwNH2eJuYvDA3hBJyfBx0hhP2DQYsHT2TNG08l1ucCypFdYAYjU9zBgJXjW3eL147GunsL1k3FCHef6nn4PxooLSFeIRwJRmOxxkB02YKCydXFwyNjFWUlJrUaGtsZP03DZ681ZxwAwJkpEMjPEVQTj8YZl2Sx4e09z7wxaHOIrX6uuKBJQWau61t5hsqGDFVECAHGoEDM8cH7HtgCPKVP/PedC+rbXtgZAFzgAAgEImBxwNlZaoFzQDk/PzpCCCjjR4/smLPwDtfJ1lJ38uiQCAEYjAmX1ySK00e8QgCG46R6RnlZJkJgx+6h3uFMRQ6e6DwBACICEjCIJbRN11x9rD1ts/m4RafW1P35jTdUzVy5dNam69ebjADAIYAAAkZZhtfuH7aEM4TGOaPU0C1dhxgiDiAGdDxKP2wnNodMsFXgYgJBp/Yd/emjR5etXfb9b8+mlAIAJ/RS85BsqC4GiWUxhCAHUCJgcCSx4frrFl60AiEE+GkylER8YP/ep55/m5xXeEMIaibPFhOj316WEAmwS/yxvZ5vzg1vPZWfMWMxjwzG4urVGxcSwCgj+dmyaYxo6bCiSBwghKBpGoGByFGloK1Tv/cnF50KxQY+o7NnTPUHhr5/33fffvGwokbAaQ3DAYAW5zwRA5IY1QiCGiaYeHz3/+i6b0k+f1vLu5/2m5wsWLN4yzyvU4bP/G5r4wBT7IoF5YaAWKV7sd2GIAScE1EUJNEuMklioiQRAXMAOONBwe1obvywq1ci8Az4IcCjJrr4xqtUTT+PamKMzamf5LJPXuFogtDY2RqvzHPnOhyhBHfX1itOe05p7expXgBAKhLRRXH5ktL7+gaffM0cjQObBOIpbcrk/NUbl2TV5FcPBrds/Wztg1edauz2OAprluc2HQ6ox5t67bmcMogQBIAyhiBgguw3bQRSiElsZCjYyXMgdZCgiLqgBfwtrQ4QqSKjTmj4SIRB31DrsXhw1OOUQCocOtasayYWhXBP90i4HxCRMTbScjw+HoOYCJC2aa4IFRypNOUAcsA4AwBYAOcZ440fOGbNnQXPxSII+cYNNxUy4d7Zg4e6E10jsQwFHhotmVLgKJla9uTrA9dsmHXPnXNGg3EzEQIQKN5sp0B7Ghpe3zn+cUP6quW57SlP3c2r4vGkSXjD87vdswtT/iRq3F8zjWWQae3b9+wFpQRQVTUYBzabyBhT07pdQpJIOEcCUzFVKQVEQKKkpLlIzCSzLFEWEYSRFDehkOfimkFHk0Ah3IENjYuMKC7JwtQaSQAOgEc0KMAGVhBECALVAmnNnIBERREBBzrEtTy4aE6pXKucBx0dNizJGeXQL4gopVsCxgBynxztHrPPc+s3XuTY9twna5bm+HJz4tSDMWQARww0tcre1ROvLRauurRw0x/inYMBzdTHIomRcKzp49FyMaPcgeKJpC8LQ85kRDE362eWSyI81twt2ZXpCyYNBUZ7+scotQoqin3ZmQCA0dFob8+wiFhh1SS3Wz5+7BQDePbC8mQsfrzdX1xSMG1Otm4yBrGWVjs7B8ZT1OvNvGhmkUW5xTGnVmdnv6HrpmlleJwL59YAAA3DbG0bkAhVKcAGm8Bscn4hyxlCVlpjFjUVwUxqIM8W7+z1/OmtiNPtFSfN/t9PHPrFXZU5FcU6k7CVgON9H+71P/F26u6rsn/88niPKPubTobaR7JNkGPQSpetosB48/39c2dPmmAmBjiG+Kc/WZetta3a1Fw0perZp6955VdP3deUvvnGi3720BIXTgCEI1H9xw9vee9w6sHvrZqTH7nyxmOWu+SZJ645sPWNGw4lN6y/4t7bp6rRsCRAnQlPPfHhr59pXrW87slH1yVDw3YJWVjavvXgQ7/ek1NQ8IdHr51SDBGzLCS9+NRHb+4eCiYx1U/ro/NEwbIsk5rHR1SZBvrGxd54Mcko9fdHCqfWTVk4I2dy/ny3uGXb3rsfbbqurifPJ4wn2d4+6/2YmKrOfehjA6XGXCyCdXF1vTcS64nz6LA//Nnu/lAosXTx9L9qBwhNQ9UTIQghRIinImY6hrCwft0MEmp57PH3sTf/Ww+svWKu8vaBhGUZWnyUMcYB0tW4mYoCAC3GrMjgq7/b0jOOv/HAtesWKb97gRoUUSO05y+v7j0au/qWy1fNdxU4zWlzJ02vZG/+/pWjp7Tbv7vhhstzN29rGVXdufg0Y58vChRYlDGAR6N0n75o4w9vmjyt6IXnP2DRZN7KqlMtfV1/bnHnOaOXL3n4YAfuM+NpAIGcyVhB96ArFcgAozY6ovpWhdWBzdvevoDhBSHiAMRj6WRKh5gAiJCAOKeGamzepeJc4ZuKb8ImABBChM/86vNzSAja0Zh6r9Nx/fezFUwgBIwDTFBbr/5fb+v1V2fWCmEiIEQQ09VdjbHHP2LOwuP13iDHIjxLnp6fKTljhMCERuxF+ft3H05hbc7Vs9/5zZu732/wVGaRMs9gi9+UszHkKX9ycbZIR2PC+EGPFHbaYLbHhoHjYDglcQdCaMLLRAieU1xAZlm2zKz7H9yQUVjELAsACDiAAEIE7TaMZQC5dbaUPq/AVmTstiEE6ATpTlwUReRxYIIYBJxzwClHNuclVy8vXuYxU4mfbx0KxpEkcE4v4DVhQARiWZZLMmkk1CEa6oHW2pXTmU9ube4yzUSquQ80BqriY2WiMn9l+frVhd/76fuCNJaVYc9z20VCVC0BEbEonch/xhiE6DzajFLZ47n7SonylJGAEJMzzgRjHPKvZUYzzin72zs5B5RxDgBjXJGFvQc6D3zEF9U7lorQllUzrzB83382JLl8/lzAGHEOnA7FITsEmnQ5gHugk9Vd6a3N2NHS1jc87uqN+w4f9TlzvZcuX+E4fvHaaWGN/OaPjf2nxku9nnw3JpgwpncMGWJOQWis8YKmKCeSGO9tfuBHH+TX1v/2kfWcnU6Hzwn7r37NWftAX8vEgRCeMd8wxrFQ8r+e7cwg0VAo8dDPb62t8WQ5eCTJzywN+mvJAgCljDFWN216KpLOFCMml6ZnDKA9B8LHYqkd3RX9J0r13tnx3qlXrFxx28aXD4t33/Lqv9/1cuXuv/xpI2KZc1sGU/7Q2JHuWJc+o7BYOdpyDEJ4IceFM4uhpiGlM+wEmHDGIIIQAWpRLW3qGmUcIYggBAhCajFNMzXNYhwieNqK42eqEsYmQGfioqmZSdWiFsCEpNP62ivmvP7nO5xO2wdtYpK7IcZ/E0lyBrcwAvNn1yXS6dzsktH+4QwxpMjZbhtYQY72HTw5WVTHxWhQLYxX1M1evmJ6rjh87ZrgY7vL86T5TltOJPDdBd5/f70qoKlyzvR5k707PvlLOJKG8ALFIhBkRdIFm8BsIoA2RRCIoZuppOabXPbk8/cRZ6aM04mEYVk8EU/7ppb8/pnvIFuGW9FjkRTliAgCtCkTLoRoU0RJAJwJggAF+ao7r1x0a15luTvdtzOlslQyjXn0O/dfeuP9uTVl9nDDEY1idNY7RCZCUJifefkl60yr2OUY6zjZVFi1rOXwCZWGPDbBLqJcR3g4wVoSU1fRQCDhYIlkSZYv6h/O8DqqnCY3aVdvckbJWHXNFORS4uGWF195aTyc+orNCYgGm4+qajfHkpZKDuzZFw4nRUl46qkdtjFPbrYEY/CTPaMv7IgrdvLM05+4wxn5uTIIw137x174MCIocsQ/OHigRzMhwnCgqVEe70WiosZCp/YeTsfCPrk7OKS98X5v0LAnDnQ8+/v4ommSi3T19aZe2tozqkrCWegIIYS+DOd1V98iSMXxhNbTvf2zfQc3XnWZw1nX1njcjcYYtCwmWjRjihhdae8ZVJXdroUsq+JyY38ogTVBudvbfqRHWzHb+6K85NPuwTfffutcXpxgirtuXVuVO7/lrU8bcDHmTGA6hNyEMudcYCrFIgWCblgCN0XEAAAmFwwkygLQDUvgloQnLhITiSKBmFuE6SZWKIcC0yCEOpARtwjTJ94PiFCSiZKAGWOWbtkFCwLGIU5zSSLAALiKjc6dXW6fZiMA8KWLl9uFzAWLSnd81tR+oo1z8MGOj2+9uXYuGCt2acNp0YHMPNhRKSQjmjBF1srTO4zeHfXZyquTNsjezFNNpzKzoEqBC2iy7EYIQQApo+cFLcYYRlDjAuGWCh0cAM6YBBlDDs45BFyRCQCiNVHaciYzaukccaBzkrIAZwBCBrmucs4BBFBAwEAQAIQRhAQZCCML2SA+DY82wBjjGCPBLhpMUjlGEBLIdM41QADCkDPOASkvzbMrpZcuzvCrxO/vjsZSAIAFi5c7w4mLfcFUSl/s5MMaryzKcNoc3RFrkpcMpYBLoO8Gs6YvnZSV52va66k2exIeongR4+fnxYlDU1XR6dBiybnOfso4nCA4UekFnijFErcYpZrOTItTAImAsSggUXRmSm6XoojQJhNJhAQjjCFGiHNmWcxiQDeZppqqTuMpK54wLMO0dJOaJuBcwFAgCBOkAyIgPp1EZC1JGQMQcojEVDSJa1yIk+rqWifmdbMqDr2ZMo2obrD8HE9J0ez8Y59kZYHigkwF4/FB1WGxgYGEZQFLVGLjyYCpDJROu2uGs2vUCmUWZWiDogzCaT5BdPAcrcMYhxB8vLNh/dq19LarWSSMCYYQMsp6W/syRvr9zHkSZcpud2GuozhHyXfjAjcotNFMkTppSo4PS9wSDU3AHJs6AhwCDiCkiDDGTUhMh9cUbCqWktwRNvEws/tjcChG/eN6YCgei6q5ZmQyDkObq3judJtNYpwBzlQuzrio9LdPPE7czpySAgcO9cb7IxwiBKGmUxkFG3Jm7TzeemdZTGLxXJlneKUAJTO9QkJnwOZ4J1l9640zJarRmLbHL/VG8kEoM39BTiK2D5wvDBNG3sho5P4f/scN114KZFFVNd20ZKd91Q/WdLfFLk32up2CC5vZ6rAzGpSYyQJpNjZOE3EmKHj2MjoWRkUV1vAgqpmj+buwN5vqOh8LkPxyATD28Ws4nXIoSn5hCbLZQDpCsrINB0nmuqML84dBAdAyGpKzahZVH2vc39HfqxBBkkWbTH79yGv7D7cTROxqsCe2a58QKVYcGYxzjKHJeG9KjCiZD4+X2/T4LHsoM2iGkmaOS/brICo4Lrtp1swKm5oYC4aF2ux+V5Wzh9TvaXhv9/6jZ5uL5wZiIDD2m8deAgBkF+VfNHPSYjuo7di52konR/1yiLBkkvtKeHaVUTHVbD5gDoWF+mVWd5t3031mTztSbHzf+9LilXighGTlM01lg6fIpHrGud7wqXzL99RtzwqrN4GSav3QJ6bTy/09Ngbkhj1FTDMlZU5JsXayJ5lIBdT0B80nu9q7zqAVwRjHQmGEmBfHbEpFfW3hnPnr+ajx7VXivhMlZveeYVhcXc4SGiyA0omwPb921s9vKJOcnthglyc3t617dO1kkiqYH2hOHDh8dEK5XGCHvqKsaN2qeauq82dAzRPoA9G+VJ8n5cqSFq/nDhcL+klmrtnVDENDCFjYlyUvWJU8eZQG+ng8ymQZuH1a0z7t0zftG/6Na0maTPDAADM0bpg8GYeYoMxspCaVaXONgRPS0sugO8Pqakl/vM228mqtcS/0n7rWJmz06NqtizrkNTv98W2fHD7S1E4g0FLcFtPULGEk2uO8ftN32g+cuqO2u8alOJeu2upvy6GR2uyMUndMUqQPUzOyK6s8hUWhoVEpuyRkSUPtu4rmyh+lHKFIF+MQfrm8ndgsnr9wxiPziyOvvmoqzvQ19/B0TKqZrr6/GVCTjwVIbhELBVH1dOPofmZSo/046PoBtjvVlx4RmQkUu4Agj47ZTAO+8TgEAGHCLQtCpABL3/x7aHfQj97QEMY1M3gyaQb6jO2blXkrxdJKcc4SADmwOdTxEY4Ea/9Hlb2t85cv812/+khTO4lEhinKC4QHfS6pWmx7/XXlW7NH831ifyBZUjUg55TpfY2to5mlLqIT70jaXuMRNVXnitvllbZvPpBNg06nMxpGWjpkWRxhxOn5JTOjHACw7b1dh+oLKyijDpfd62EIIJsdOTOMwV6eiJJ4HLQeEn1Z4mg/cXvYqpUjTOSCYPfY25lL16kJkVaqUEgM3SAEEchFRCVuYUEoUXQcGY+MRfMFQ2z/lFvMPDSOwyErtxjYPOqhT5GkoGQcphPSnOWJz7bpJg8i6Y+v7wAAkPb25qVLpu3v4VfPIlNywLDmr83FqgEwQooVc7gzADZDaWZZFkJY06k302EC0S7pXQ1Nb7zZ8ePFZtQSYilD15MAAMgvsNnEMULpaOy13vAvp9eNHjxkRkKASNrmP0oYCoETOCvbiOgj1VXDFjopZ7b4QzOqp8yZv3DzlrbEJ4dVOt5KfUEVSTxKDXPqRXNPNrZYumFgwSWiWjGSDVJmVe3G2zcMxvvffvuTEo+tdnpNoQRzYgFHMs5bPqVAMCpnouw8o7vTDA6783N2CN6jjR0QAtLdNzJvbm8nndnat6ckryAjJLvlFOUYQAgtTbEpCSOt2rLQpElssBNwi4/3iaKSGBp6+rWw4s5kbAhA0aRAN/QvhYSzqmAAwJ+37//mA2sdBw6Cd1+UcnzQbu93ZLY4Fx0JhJta/Kf6m4YCo0DXAADg+TcXz5t6x01Xm0Urjr/fMLPvREJyNSaU/KqyDd/c9N6Trxz+aFd9BshXg0zKLr5kaXEJ+tP/fXzz1k9PwzPC3hxfRVnBtPKC+aVz6pyoIhFU2k+ytAnjUbBg/nO72wC1EEYEQvjRjg9uuP6ed0/OKhg+6bApAgKmNeEEUYRQzeSymNvBSmZ6vV4SFpXoKZ0pP/rDYGZZ1bLpGT2NB1fMK5EDObIofmUDJOccITTUN/DOsHbvrbfuC6m7g6mdDQMt7Q3j/qEvgAgEECHA+d5DrXsPtW5cd9FV168fDtQe/7BR0uCKG69BAl60YU1PywmkBXLXLJ88O//A3h2/evTdaFw9bREwzhmNDAcbhoMN+5ueA0DJ8E6ZVLakrnJpmWdp7ZRWxfvRzu0TjEYAAOPh5LY3n9tw1Q1HOxctAscRFBgHGEGMIBbw3IXT9naBSBqUz1vubT/5cXPHjmNJYbxDLnRDIY8VTcucMz/Pn7bZPJzzczc+z40EhOCxV7ZvrSg51NhmxBNffGzAOOecMw4AZZ/vj/BX39qz7d19W174xYnKyqJSX9WMSZFQzJ2bPeeKi49u/3DVpSXX3fJ9/0jkTMHyecfg6dbUiTpcDUca90ca9zc9Koh19ZMItfRkcqLqRRM07h8KP/fiH0uKAYIQQeaUgJrWYgkDIehUOAFQkQlGallp5mPbkgU+Uj9v9liMNDcPFS65GDvtkBpeb1FFmY9SeuF8YJxzDvoHhvfsPGjEExgjjNBEIwuljH5uE5wlOhmEHGPMIQgGjd6+2Pw1S1TNdNsEG9BrL5ptAbm9LSTbZIwxQoh+EZsntospZZRxCOGEAwhM4/iR401N7eDzko9M3IoRiiWZYUT60lnH+zq7U+VDQp3Lch5sGx/p12K6jPYN7NwT6B2BS6fbfni9N62hgaDxpw+GP94pHzgcSlMZSxWXr7p1/+HtDc0dX9nwByFEEDLOKf06O/qQUupyKookJ81ERUmmZpkzS2xVWcpnfWmg2DnDWT7PqZ7hie7OC7yPE7OCAMAv9oGSvwo7ABsbPlu96rr/cwRtuvnie1ZUKiKe1pLetbs53j9mAdv8eYXzoNjSkfuT5z6qr8DBCAjHrWxTuHNDHeRmSqt5d8fQAsAH/IGxUOLCgeCc06/d/MQ5RwgmkhpAhlO0Who7775zpWwZhOBA/0giOOzNzBoYDIKv3Vk3Uch+wWo88wVCaGw8KkvpWbMvdcumpSfUZHxsPH2gYWxmrePGayosLZHp0ovKStsHycHjww6fM5QQv3PHZIesH2no9zr0SFoIR3g82h0YHkMI/Qv7NyfQAWN288bVj/72/YRFLCJu+6TtsZ89fcvaymSqe+s7u/+ZEeHZpwgiu12+6dqNaS0LIyIIJJlIeryi0+kNhdTJ1Rkup7Bz/3BVRWFfzwe79+/esO5mw8xCGMaTem6WveNkqLIMbn792UH/2D/SBfsVgYCM8V88fFft5AV/eqUlqnIRsPVrqnKyE9/43n8mkmnOwb8iCmd55GXFuR63G0IYSySoZUyqrnO782TJxjg3jGQk7N936EgyrXnctqmTaxTZI4qSruuMJ1s7To6OxS4kpP/xLmYw0aFw2SXz1l6yVBKdjBtHmo899/J2w7T+yRH/H7khsT+il1lPAAAAAElFTkSuQmCC" alt="Leak Hounds" style="height:46px;width:auto;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,0.4));">
     </div>
     <div class="header-right">
       <div class="live-badge"><div class="live-dot"></div>Live</div>
@@ -124,140 +149,221 @@
   </header>
 
   <div class="main">
-    <div class="map-panel">
-      <div id="map"></div>
-      <div class="map-overlay"><b id="map-count">—</b> vehicles &nbsp;·&nbsp; updated <b id="last-upd">just now</b></div>
+
+    <!-- LEFT: VEHICLES -->
+    <div class="left-panel">
+      <div class="panel-header">
+        <div class="panel-title">Fleet</div>
+        <div class="panel-stats">
+          <div class="pstat green" id="cnt-m">0 <span>MOVING</span></div>
+          <div class="pstat teal"  id="cnt-p">0 <span>PARKED</span></div>
+          <div class="pstat yellow"id="cnt-a">0 <span>ALERTS</span></div>
+        </div>
+      </div>
+      <div class="panel-scroll" id="vlist"></div>
     </div>
 
-    <div class="right-panel">
-      <div class="summary-bar">
-        <div class="stat-block s-moving"><div class="stat-num" id="cnt-m">0</div><div class="stat-label">Moving</div></div>
-        <div class="stat-block s-parked"><div class="stat-num" id="cnt-p">0</div><div class="stat-label">Parked</div></div>
-        <div class="stat-block s-alert"> <div class="stat-num" id="cnt-a">0</div><div class="stat-label">Alerts</div></div>
-      </div>
-      <div class="section-head">Vehicles &amp; Maintenance</div>
-      <div class="vehicle-list" id="vlist"></div>
-      <div class="footer">Bouncie API &nbsp;·&nbsp; <span class="api-mode" id="api-mode">Connecting...</span> &nbsp;·&nbsp; auto-refreshes every 15s</div>
+    <!-- CENTER: MAP -->
+    <div class="map-panel">
+      <div id="map"></div>
+      <div class="map-overlay"><b id="map-count">—</b> vehicles &nbsp;·&nbsp; <b id="last-upd">just now</b></div>
     </div>
+
+    <!-- RIGHT: EMPLOYEES -->
+    <div class="right-panel">
+      <div class="panel-header">
+        <div class="panel-title">Today's Crew</div>
+        <div class="panel-stats">
+          <div class="pstat green" id="cnt-active">0 <span>ACTIVE</span></div>
+          <div class="pstat blue"  id="cnt-jobs">0 <span>JOBS DONE</span></div>
+        </div>
+      </div>
+      <div class="panel-scroll" id="elist"></div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <div class="api-badge"><div class="api-dot" id="bouncie-dot"></div> <span id="bouncie-status">Bouncie connecting...</span></div>
+    <div class="api-badge"><div class="api-dot" id="hcp-dot"></div> <span id="hcp-status">HCP connecting...</span></div>
+    <div>auto-refreshes every 15s</div>
   </div>
 </div>
 
+<script>
+window.addEventListener("load", function() {
+// defer init until Leaflet ready
+});
+</script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  YOUR API KEY
+//  API KEYS
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const API_KEY = '6y3oxgj7yRjM7qSxMj6IuL7aDqElIpSs9z0IP2oZ243bzFxV2G';
-const POLL_MS = 15000;
+const BOUNCIE_KEY = '6y3oxgj7yRjM7qSxMj6IuL7aDqElIpSs9z0IP2oZ243bzFxV2G';
+const HCP_KEY     = 'fe5311b93cc342208fb1a4ed780f2e17';
+const POLL_MS     = 15000;
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  MAINTENANCE CONFIG
-//  Set due_miles for each item per your schedule.
-//  These apply to all vehicles — adjust per truck below if needed.
-//  Battery is read live from Bouncie (voltage).
+//  MAINTENANCE CONFIG (mileage intervals)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const MAINT_CONFIG = [
-  { key:'oil',   label:'Oil Change',    interval: 5000  }, // every 5,000 mi
-  { key:'tires', label:'Tire Rotation', interval: 7500  }, // every 7,500 mi
-  { key:'brake', label:'Brake Inspect', interval: 20000 }, // every 20,000 mi
-  { key:'smog',  label:'Smog / Reg',    interval: 24000 }, // every ~2 yrs / 24k mi
+const MAINT = [
+  { key:'oil',   label:'Oil Change',    interval:5000  },
+  { key:'tires', label:'Tire Rotation', interval:7500  },
+  { key:'brake', label:'Brake Inspect', interval:20000 },
+  { key:'smog',  label:'Smog / Reg',    interval:24000 },
 ];
-
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  LAST SERVICE MILEAGE PER VEHICLE
-//  Fill in actual last-serviced mileage for each truck.
-//  Key = vehicle IMEI or nickName (must match Bouncie exactly).
-//  If a vehicle isn't listed here, bars show as unknown.
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const LAST_SERVICE = {
-  // Example entries — replace with your real truck names & mileages:
-  // 'Truck 1': { oil: 85000, tires: 82000, brake: 70000, smog: 80000 },
-  // 'Truck 2': { oil: 59000, tires: 55000, brake: 40000, smog: 50000 },
+  // Fill in your real last-serviced mileages per truck name (must match Bouncie nickName):
+  // 'Truck 1': { oil:85000, tires:82000, brake:70000, smog:80000 },
 };
-
-// Battery voltage thresholds
-const BATT_OK   = 12.6;  // green above this
-const BATT_WARN = 12.2;  // yellow above this
-// below BATT_WARN = red
-
-function batteryStatus(v) {
-  if (v >= BATT_OK)   return 'ok';
-  if (v >= BATT_WARN) return 'warn';
-  return 'urgent';
-}
-function batteryPct(v) {
-  // 11.5V = empty, 12.8V = full
-  return Math.max(0, Math.min(1, (v - 11.5) / (12.8 - 11.5)));
-}
+const BATT_OK = 12.6, BATT_WARN = 12.2;
 
 function maintForVehicle(name, odometer) {
   const svc = LAST_SERVICE[name] || {};
-  return MAINT_CONFIG.map(m => {
+  return MAINT.map(m => {
     const last = svc[m.key];
-    if (!last || !odometer) return { label:m.label, s:'ok', p:0.5, note:'—' };
-    const milesSince = odometer - last;
-    const pct = milesSince / m.interval;             // 0 = just done, 1 = due now
-    const remaining = m.interval - milesSince;
-    const s = pct >= 1 ? 'urgent' : pct >= 0.8 ? 'warn' : 'ok';
-    const barPct = Math.max(0.04, 1 - pct);          // bar shrinks as due date approaches
-    const note = remaining <= 0
-      ? `${Math.abs(remaining).toLocaleString()} mi overdue`
-      : `${remaining.toLocaleString()} mi left`;
-    return { label:m.label, s, p:barPct, note };
+    if (!last || !odometer) return { label:m.label, s:'ok', p:0.5 };
+    const pct = (odometer - last) / m.interval;
+    return { label:m.label, s:pct>=1?'urgent':pct>=0.8?'warn':'ok', p:Math.max(0.04,1-pct) };
   });
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  MOCK DATA (shown until live API connects)
+//  MOCK DATA
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const MOCK = [
-  { id:'v1', name:'Truck 1', lat:34.1336, lng:-117.9073, status:'moving', speed:38, address:'Foothill Blvd, Azusa',  odometer:87420,  battery:12.7,
-    maint:[{label:'Oil Change',s:'ok',p:0.82},{label:'Tire Rotation',s:'warn',p:0.28},{label:'Brake Inspect',s:'ok',p:0.65},{label:'Smog / Reg',s:'ok',p:0.70}] },
-  { id:'v2', name:'Truck 2', lat:34.0922, lng:-117.8672, status:'parked', speed:0,  address:'Arrow Hwy, Covina',     odometer:61100,  battery:12.1,
-    maint:[{label:'Oil Change',s:'ok',p:0.70},{label:'Tire Rotation',s:'ok',p:0.55},{label:'Brake Inspect',s:'urgent',p:0.04},{label:'Smog / Reg',s:'warn',p:0.30}] },
-  { id:'v3', name:'Truck 3', lat:34.1482, lng:-117.8543, status:'moving', speed:54, address:'I-210 W, Glendora',     odometer:44800,  battery:12.6,
-    maint:[{label:'Oil Change',s:'ok',p:0.60},{label:'Tire Rotation',s:'ok',p:0.75},{label:'Brake Inspect',s:'ok',p:0.90},{label:'Smog / Reg',s:'ok',p:0.80}] },
-  { id:'v4', name:'Truck 4', lat:34.1109, lng:-117.9301, status:'idle',   speed:0,  address:'Todd Ave, Azusa',       odometer:103200, battery:11.9,
-    maint:[{label:'Oil Change',s:'warn',p:0.25},{label:'Tire Rotation',s:'warn',p:0.20},{label:'Brake Inspect',s:'ok',p:0.50},{label:'Smog / Reg',s:'urgent',p:0.0}] }
+const MOCK_VEHICLES = [
+  { id:'v1', name:'Truck 1', lat:34.1336, lng:-117.9073, status:'moving', speed:38, address:'Foothill Blvd, Azusa',  odometer:87420,  battery:12.7, maint:[{label:'Oil Change',s:'ok',p:0.82},{label:'Tire Rotation',s:'warn',p:0.28},{label:'Brake Inspect',s:'ok',p:0.65},{label:'Smog / Reg',s:'ok',p:0.70}] },
+  { id:'v2', name:'Truck 2', lat:34.0922, lng:-117.8672, status:'parked', speed:0,  address:'Arrow Hwy, Covina',     odometer:61100,  battery:12.1, maint:[{label:'Oil Change',s:'ok',p:0.70},{label:'Tire Rotation',s:'ok',p:0.55},{label:'Brake Inspect',s:'urgent',p:0.04},{label:'Smog / Reg',s:'warn',p:0.30}] },
+  { id:'v3', name:'Truck 3', lat:34.1482, lng:-117.8543, status:'moving', speed:54, address:'I-210 W, Glendora',     odometer:44800,  battery:12.6, maint:[{label:'Oil Change',s:'ok',p:0.60},{label:'Tire Rotation',s:'ok',p:0.75},{label:'Brake Inspect',s:'ok',p:0.90},{label:'Smog / Reg',s:'ok',p:0.80}] },
+  { id:'v4', name:'Truck 4', lat:34.1109, lng:-117.9301, status:'idle',   speed:0,  address:'Todd Ave, Azusa',       odometer:103200, battery:11.9, maint:[{label:'Oil Change',s:'warn',p:0.25},{label:'Tire Rotation',s:'warn',p:0.20},{label:'Brake Inspect',s:'ok',p:0.50},{label:'Smog / Reg',s:'urgent',p:0.0}] }
+];
+
+// Mock employees — statuses match real HCP work_status values
+// on_my_way is a job event (not work_status) but we store it separately when received
+const MOCK_EMPLOYEES = [
+  { id:'e1', name:'Carlos M.', totalJobs:5, doneJobs:3,
+    currentStatus:'on_my_way',   statusSince: Date.now() - 4*60000,  currentCustomer:'Ramirez, D.' },
+  { id:'e2', name:'Jake T.',   totalJobs:4, doneJobs:2,
+    currentStatus:'completed',   statusSince: Date.now() - 22*60000, currentCustomer:'Patel, S.' },
+  { id:'e3', name:'Marcus R.', totalJobs:6, doneJobs:5,
+    currentStatus:'in_progress', statusSince: Date.now() - 38*60000, currentCustomer:'Johnson, K.' },
+  { id:'e4', name:'Tony V.',   totalJobs:4, doneJobs:4,
+    currentStatus:'completed',   statusSince: Date.now() - 95*60000, currentCustomer:'Williams, B.' },
 ];
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  BOUNCIE API (tries direct, then 2 proxies)
+//  BOUNCIE API
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-const ENDPOINTS = [
-  'https://api.bouncie.dev/v1/vehicles',
-  'https://corsproxy.io/?https://api.bouncie.dev/v1/vehicles',
-  'https://api.allorigins.win/raw?url=https://api.bouncie.dev/v1/vehicles'
-];
-
-async function fetchLive() {
-  let lastErr;
-  for (const url of ENDPOINTS) {
+async function fetchVehicles() {
+  for (const url of ['https://plain-sound-343c.brent-8ce.workers.dev/bouncie']) {
     try {
-      const r = await fetch(url, { headers:{ 'Authorization': API_KEY } });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`${r.status}`);
       const data = await r.json();
-      if (!Array.isArray(data)) throw new Error('Bad response');
+      if (!Array.isArray(data)) throw new Error('bad response');
       return data.map(v => {
-        const name     = v.nickName || v.hardwareSerial || 'Vehicle';
+        const name = v.nickName || v.hardwareSerial || 'Vehicle';
         const odometer = Math.round(v.stats?.odometer || 0);
-        const battery  = v.stats?.battery?.batteryVoltage || null;
         return {
-          id:       v.imei,
-          name,
-          lat:      v.stats?.location?.lat,
-          lng:      v.stats?.location?.lon,
-          status:   v.stats?.isRunning ? 'moving' : 'parked',
-          speed:    Math.round(v.stats?.speed || 0),
-          address:  v.stats?.location?.address || '—',
-          odometer,
-          battery,
-          maint:    maintForVehicle(name, odometer)
+          id: v.imei, name,
+          lat: v.stats?.location?.lat, lng: v.stats?.location?.lon,
+          status: v.stats?.isRunning ? 'moving' : 'parked',
+          speed: Math.round(v.stats?.speed || 0),
+          address: v.stats?.location?.address || '—',
+          odometer, battery: v.stats?.battery?.batteryVoltage || null,
+          maint: maintForVehicle(name, odometer)
         };
       });
-    } catch(e) { lastErr = e; console.warn('Endpoint failed:', url, e.message); }
+    } catch(e) { console.warn('Bouncie endpoint failed:', e.message); }
   }
-  throw lastErr;
+  throw new Error('All Bouncie endpoints failed');
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  HCP API
+//  Fetches today's jobs and maps them to employees
+//  Auth: Token header, no version in path
+//  Only counts parent jobs (invoice_number has no hyphen)
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function hcpFetch(path) {
+  const url = `https://plain-sound-343c.brent-8ce.workers.dev/hcp${path}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`${r.status}`);
+    return await r.json();
+  } catch(e) {
+    console.warn('HCP fetch failed:', e.message);
+    throw e;
+  }
+}
+
+async function fetchEmployees() {
+  const today = new Date();
+  const start = new Date(today); start.setHours(0,0,0,0);
+  const end   = new Date(today); end.setHours(23,59,59,999);
+
+  // Fetch employees and today's jobs in parallel
+  const [empData, jobData] = await Promise.all([
+    hcpFetch('/employees'),
+    hcpFetch(`/jobs?scheduled_start_min=${start.toISOString()}&scheduled_start_max=${end.toISOString()}&page_size=100&sort_by=updated_at&sort_direction=desc`)
+  ]);
+
+  const employees = empData.employees || [];
+  // Only count parent jobs (no hyphen in invoice_number)
+  const jobs = (jobData.jobs || []).filter(j =>
+    !j.invoice_number || !j.invoice_number.includes('-')
+  );
+
+  // Group jobs by assigned employee id
+  const byEmp = {};
+  jobs.forEach(job => {
+    (job.assigned_employees || []).forEach(emp => {
+      if (!byEmp[emp.id]) byEmp[emp.id] = [];
+      byEmp[emp.id].push(job);
+    });
+  });
+
+  // Build employee cards — only include techs who have jobs today
+  return employees
+    .map(emp => {
+      const empJobs   = byEmp[emp.id] || [];
+      if (!empJobs.length) return null; // skip employees with no jobs today
+
+      // Count completed jobs
+      const doneJobs  = empJobs.filter(j => j.work_status === 'completed').length;
+      const totalJobs = empJobs.length;
+
+      // Most recently updated job = current status
+      const sorted = [...empJobs].sort((a,b) =>
+        new Date(b.updated_at||0) - new Date(a.updated_at||0));
+      const latest = sorted[0];
+
+      // Derive a display name from assigned_employees array (has .name directly)
+      const empName = emp.name || `${emp.first_name||''} ${emp.last_name||''}`.trim();
+      // Format as "First L."
+      const parts = empName.split(' ');
+      const displayName = parts.length >= 2
+        ? `${parts[0]} ${parts[parts.length-1].charAt(0)}.`
+        : empName;
+
+      // Customer display
+      const cust = latest?.customer;
+      const custName = cust?.last_name
+        ? `${cust.last_name}, ${(cust.first_name||'').charAt(0)}.`
+        : cust?.name || null;
+
+      return {
+        id:              emp.id,
+        name:            displayName,
+        totalJobs,
+        doneJobs,
+        currentStatus:   latest?.work_status || 'scheduled',
+        statusSince:     latest?.updated_at ? new Date(latest.updated_at).getTime() : null,
+        currentCustomer: custName
+      };
+    })
+    .filter(Boolean); // remove nulls
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -265,7 +371,7 @@ async function fetchLive() {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const map = L.map('map',{zoomControl:false,attributionControl:false}).setView([34.12,-117.88],11);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',{
-  maxZoom:19, subdomains:'abcd'
+  maxZoom:19,subdomains:'abcd'
 }).addTo(map);
 L.control.zoom({position:'bottomright'}).addTo(map);
 
@@ -274,126 +380,182 @@ const SE={moving:'🚚',parked:'🅿',idle:'⏸'};
 const markers={};
 
 function mkIcon(v){
-  const c=SC[v.status]||'#aaa', e=SE[v.status]||'🚗';
-  const n=v.name.split('—')[0].trim();
-  return L.divIcon({
-    className:'',
-    html:`<div style="text-align:center;width:50px">
-      <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.97);border:3px solid ${c};display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 2px 12px rgba(0,0,0,0.3);margin:auto">${e}</div>
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:#111;background:rgba(255,255,255,0.93);border-radius:3px;padding:1px 5px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 4px rgba(0,0,0,0.25)">${n}</div>
-    </div>`,
-    iconSize:[50,62],iconAnchor:[25,44]
-  });
+  const c=SC[v.status]||'#aaa',e=SE[v.status]||'🚗',n=v.name.split(' ')[0]+' '+(v.name.split(' ')[1]||'');
+  return L.divIcon({className:'',html:`
+    <div style="text-align:center;width:50px">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.97);border:3px solid ${c};display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(0,0,0,0.3);margin:auto">${e}</div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:800;color:#111;background:rgba(255,255,255,0.93);border-radius:3px;padding:1px 4px;white-space:nowrap;margin-top:2px;box-shadow:0 1px 3px rgba(0,0,0,0.2)">${n}</div>
+    </div>`,iconSize:[50,60],iconAnchor:[25,42]});
 }
 
 function placeMarkers(veh){
   veh.forEach(v=>{
     if(!v.lat||!v.lng) return;
-    if(markers[v.id]){ markers[v.id].setLatLng([v.lat,v.lng]); markers[v.id].setIcon(mkIcon(v)); }
-    else { markers[v.id]=L.marker([v.lat,v.lng],{icon:mkIcon(v)}).addTo(map)
-      .bindPopup(`<b>${v.name}</b><br>${v.address}${v.status==='moving'?`<br>🏎 ${v.speed} mph`:''}`); }
+    if(markers[v.id]){markers[v.id].setLatLng([v.lat,v.lng]);markers[v.id].setIcon(mkIcon(v));}
+    else{markers[v.id]=L.marker([v.lat,v.lng],{icon:mkIcon(v)}).addTo(map)
+      .bindPopup(`<b>${v.name}</b><br>${v.address}${v.status==='moving'?`<br>🏎 ${v.speed} mph`:''}`);}
   });
   const ll=veh.filter(v=>v.lat&&v.lng).map(v=>[v.lat,v.lng]);
-  if(ll.length>1) map.fitBounds(ll,{padding:[60,60]});
+  if(ll.length>1) map.fitBounds(ll,{padding:[55,55]});
   else if(ll.length===1) map.setView(ll[0],14);
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  RENDER LIST
+//  RENDER VEHICLES
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 const barColor  = s => s==='urgent'?'#e84040':s==='warn'?'#f5c842':'#3ddc84';
-const statLabel = s => s==='urgent'?'⚠ NOW':s==='warn'?'SOON':'OK';
+const statLabel = s => s==='urgent'?'⚠NOW':s==='warn'?'SOON':'OK';
+const battColor = v => v>=BATT_OK?'#3ddc84':v>=BATT_WARN?'#f5c842':'#e84040';
+const battPct   = v => Math.max(0,Math.min(1,(v-11.5)/(12.8-11.5)));
+const battStat  = v => v>=BATT_OK?'ok':v>=BATT_WARN?'warn':'urgent';
 
-function renderList(veh){
+function renderVehicles(veh){
   let moving=0,parked=0,alerts=0;
-  document.getElementById('vlist').innerHTML = veh.map(v => {
+  document.getElementById('vlist').innerHTML = veh.map(v=>{
     if(v.status==='moving') moving++; else parked++;
-    const hasAlert = (v.maint||[]).some(m=>m.s!=='ok') ||
-                     (v.battery !== null && v.battery < BATT_WARN);
+    const hasAlert=(v.maint||[]).some(m=>m.s!=='ok')||(v.battery&&v.battery<BATT_WARN);
     if(hasAlert) alerts++;
-
-    const maintHTML = (v.maint||[]).map(m=>`
+    const maintHTML=(v.maint||[]).map(m=>`
       <div class="maint-row">
         <div class="maint-label">${m.label}</div>
         <div class="maint-bar-wrap"><div class="maint-bar" style="width:${Math.max(4,m.p*100)}%;background:${barColor(m.s)}"></div></div>
         <div class="maint-status ${m.s}">${statLabel(m.s)}</div>
       </div>`).join('');
-
-    // Battery row
-    let battHTML = '';
-    if (v.battery !== null && v.battery !== undefined) {
-      const bs  = batteryStatus(v.battery);
-      const bp  = batteryPct(v.battery);
-      const bc  = barColor(bs);
-      battHTML = `<div class="battery-row">
-        <div class="battery-label">⚡ Battery</div>
-        <div class="battery-bar-wrap"><div class="battery-bar" style="width:${Math.max(4,bp*100)}%;background:${bc}"></div></div>
-        <div class="battery-val ${bs}">${v.battery.toFixed(1)}V</div>
-      </div>`;
-    } else {
-      battHTML = `<div class="battery-row">
-        <div class="battery-label">⚡ Battery</div>
-        <div class="battery-bar-wrap"><div class="battery-bar" style="width:50%;background:#555"></div></div>
-        <div class="battery-val" style="color:var(--muted)">—</div>
-      </div>`;
-    }
-
+    const battHTML = v.battery
+      ? `<div class="maint-row">
+          <div class="maint-label">⚡ Battery</div>
+          <div class="maint-bar-wrap"><div class="maint-bar" style="width:${Math.max(4,battPct(v.battery)*100)}%;background:${battColor(v.battery)}"></div></div>
+          <div class="maint-status ${battStat(v.battery)}">${v.battery.toFixed(1)}V</div>
+        </div>` : '';
     return `<div class="vc ${v.status}-card">
       <div class="vc-top">
         <div class="vc-name">${v.name}</div>
-        <div class="pill pill-${v.status}">${v.status}${v.status==='moving'?' · '+v.speed+' mph':''}</div>
+        <div class="pill pill-${v.status}">${v.status}${v.status==='moving'?' · '+v.speed+'mph':''}</div>
       </div>
-      <div class="vc-addr">📍 ${v.address} &nbsp;·&nbsp; 📏 ${v.odometer.toLocaleString()} mi</div>
-      <div class="vc-maint">
-        ${maintHTML}
-        ${battHTML}
-      </div>
+      <div class="vc-addr">📍 ${v.address} · 📏 ${v.odometer.toLocaleString()} mi</div>
+      <div class="vc-maint">${maintHTML}${battHTML}</div>
     </div>`;
   }).join('');
-
-  document.getElementById('cnt-m').textContent = moving;
-  document.getElementById('cnt-p').textContent = parked;
-  document.getElementById('cnt-a').textContent = alerts;
+  document.getElementById('cnt-m').innerHTML = `${moving} <span>MOVING</span>`;
+  document.getElementById('cnt-p').innerHTML = `${parked} <span>PARKED</span>`;
+  document.getElementById('cnt-a').innerHTML = `${alerts} <span>ALERTS</span>`;
   document.getElementById('map-count').textContent = veh.length;
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-//  CLOCK
+//  RENDER EMPLOYEES
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const STATUS_MAP = {
+  on_my_way:   { label:'On My Way',  cls:'sb-omw'      }, // from job.on_my_way event
+  in_progress: { label:'Working',    cls:'sb-working'   }, // HCP: in_progress
+  completed:   { label:'Finished',   cls:'sb-finished'  }, // HCP: completed
+  scheduled:   { label:'Scheduled',  cls:'sb-scheduled' }, // HCP: scheduled
+  unscheduled: { label:'Unscheduled',cls:'sb-scheduled' }, // HCP: unscheduled
+  canceled:    { label:'Canceled',   cls:'sb-done'      }, // HCP: canceled
+};
+
+function fmtTime(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+  catch(e) { return ''; }
+}
+function timeSince(ts) {
+  if (!ts) return '';
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if (mins < 1)  return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins/60), rem = mins%60;
+  return rem > 0 ? `${hrs}h ${rem}m ago` : `${hrs}h ago`;
+}
+
+function renderEmployees(emps) {
+  let active=0, totalDone=0;
+  document.getElementById('elist').innerHTML = emps.map(e => {
+    const allDone = e.doneJobs >= e.totalJobs && e.totalJobs > 0;
+    const cls     = allDone ? 'done-emp' : e.currentStatus === 'in_progress' || e.currentStatus === 'on_my_way' ? 'active-emp' : 'idle-emp';
+    if (!allDone) active++;
+    totalDone += e.doneJobs;
+
+    const pct = e.totalJobs > 0 ? (e.doneJobs / e.totalJobs) * 100 : 0;
+    const st  = STATUS_MAP[e.currentStatus] || { label: e.currentStatus, cls:'sb-scheduled' };
+
+    return `<div class="ec ${cls}">
+      <div class="ec-top">
+        <div class="ec-name">${e.name}</div>
+        <div class="ec-clock">${e.doneJobs === e.totalJobs && e.totalJobs > 0 ? '✓ All done' : ''}</div>
+      </div>
+      <div class="ec-progress">
+        <div class="job-bar-wrap"><div class="job-bar" style="width:${pct}%"></div></div>
+        <div class="job-count">${e.doneJobs}/${e.totalJobs} jobs</div>
+      </div>
+      <div class="ec-status">
+        <div class="status-badge ${st.cls}">${st.label}</div>
+        <div class="status-detail">
+          ${e.currentCustomer ? `<div class="status-customer">${e.currentCustomer}</div>` : ''}
+          ${e.statusSince ? `<div class="status-since">${timeSince(e.statusSince)}</div>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('cnt-active').innerHTML = `${active} <span>ACTIVE</span>`;
+  document.getElementById('cnt-jobs').innerHTML   = `${totalDone} <span>JOBS DONE</span>`;
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+//  CLOCK + "time since" live update
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 let sec=0;
 function tick(){
   document.getElementById('clock').textContent=
     new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
   sec++;
-  document.getElementById('last-upd').textContent=sec<60?`${sec}s ago`:`${Math.floor(sec/60)}m ago`;
+  document.getElementById('last-upd').textContent=
+    sec<60?`updated ${sec}s ago`:`updated ${Math.floor(sec/60)}m ago`;
 }
 setInterval(tick,1000); tick();
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 //  MAIN LOOP
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-let veh = MOCK;
-async function refresh(){
+let vehicles  = MOCK_VEHICLES;
+let employees = MOCK_EMPLOYEES;
+
+function setApiStatus(id, dotId, ok, msg) {
+  document.getElementById(id).textContent = msg;
+  document.getElementById(dotId).className = 'api-dot ' + (ok ? 'live' : 'error');
+}
+
+async function refresh() {
+  // Fetch vehicles
   try {
-    const live = await fetchLive();
-    if(live && live.length){
-      veh = live;
-      document.getElementById('api-mode').textContent = 'LIVE — Bouncie connected ✓';
-      document.getElementById('api-mode').className = 'api-mode live';
-    }
+    const live = await fetchVehicles();
+    if (live?.length) { vehicles = live; setApiStatus('bouncie-status','bouncie-dot',true,'Bouncie ✓'); }
   } catch(e) {
-    document.getElementById('api-mode').textContent = veh===MOCK
-      ? 'Cannot reach Bouncie API — showing demo data'
-      : 'API error — showing last known positions';
-    document.getElementById('api-mode').className = 'api-mode error';
+    setApiStatus('bouncie-status','bouncie-dot',false,'Bouncie — demo data');
   }
-  placeMarkers(veh);
-  renderList(veh);
-  sec=0;
+
+  // Fetch employees / jobs
+  try {
+    const live = await fetchEmployees();
+    if (live?.length) { employees = live; setApiStatus('hcp-status','hcp-dot',true,'HCP ✓'); }
+    else { employees = MOCK_EMPLOYEES; setApiStatus('hcp-status','hcp-dot',false,'HCP — demo data'); }
+  } catch(e) {
+    employees = MOCK_EMPLOYEES;
+    setApiStatus('hcp-status','hcp-dot',false,'HCP — demo data');
+  }
+
+  placeMarkers(vehicles);
+  renderVehicles(vehicles);
+  renderEmployees(employees);
+  sec = 0;
 }
 
 refresh();
 setInterval(refresh, POLL_MS);
+
+// Re-render employees every minute just to keep "X min ago" fresh
+setInterval(() => renderEmployees(employees), 60000);
 </script>
 </body>
 </html>
