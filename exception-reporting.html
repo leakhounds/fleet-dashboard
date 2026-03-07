@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leak Hounds — Exception Reporting</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #18162a;
+    --panel: #1e1b35;
+    --panel-alt: #252246;
+    --border: #3a3460;
+    --navy: #2a2542;
+    --orange: #D14124;
+    --orange-dim: rgba(209,65,36,0.15);
+    --cream: #D9C89E;
+    --teal: #94B7BB;
+    --green: #3ddc84;
+    --yellow: #f5c842;
+    --red: #e84040;
+    --blue: #4aa8ff;
+    --text: #e8e4f0;
+    --text-dim: #9490b0;
+    --tech-color: #f5a623;
+    --csr-color: #4aa8ff;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  .header {
+    background: var(--navy);
+    border-bottom: 2px solid var(--orange);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
+  .header-title span {
+    color: var(--orange);
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 4px;
+  }
+
+  .nav-link {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    transition: all 0.15s;
+  }
+
+  .nav-link:hover { color: var(--cream); background: rgba(255,255,255,0.05); }
+  .nav-link.active { color: var(--orange); background: var(--orange-dim); }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .refresh-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .refresh-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  .last-updated {
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+
+  /* MAIN LAYOUT */
+  .main {
+    padding: 20px 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  /* CONTROLS BAR */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .control-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  /* Date range toggle */
+  .date-toggle {
+    display: flex;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .date-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-right: 1px solid var(--border);
+  }
+  .date-btn:last-child { border-right: none; }
+  .date-btn:hover { color: var(--cream); background: rgba(255,255,255,0.04); }
+  .date-btn.active { background: var(--orange); color: #fff; }
+
+  .custom-dates {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .custom-dates input[type="date"] {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .custom-dates input[type="date"]:focus { border-color: var(--orange); }
+
+  .custom-dates span {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  /* Responsibility toggle */
+  .resp-toggle {
+    display: flex;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .resp-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-right: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .resp-btn:last-child { border-right: none; }
+  .resp-btn:hover { color: var(--cream); }
+  .resp-btn.active-all { background: var(--panel-alt); color: var(--cream); }
+  .resp-btn.active-tech { background: rgba(245,166,35,0.2); color: var(--tech-color); }
+  .resp-btn.active-csr { background: rgba(74,168,255,0.2); color: var(--csr-color); }
+
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-tech { background: var(--tech-color); }
+  .dot-csr { background: var(--csr-color); }
+
+  /* Person filter */
+  select.filter-select {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 32px 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239490b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 160px;
+    transition: border-color 0.15s;
+  }
+  select.filter-select:focus { border-color: var(--orange); }
+
+  /* Exception type filter */
+  .exception-filter-wrap {
+    position: relative;
+  }
+
+  .exception-filter-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 8px 32px 8px 12px;
+    border-radius: 6px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239490b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 200px;
+    text-align: left;
+    transition: border-color 0.15s;
+  }
+  .exception-filter-btn:hover, .exception-filter-btn.open { border-color: var(--orange); }
+
+  .exception-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px;
+    min-width: 260px;
+    z-index: 200;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .exception-dropdown.open { display: block; }
+
+  .exc-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+  }
+  .exc-option:hover { background: rgba(255,255,255,0.05); }
+
+  .exc-option input[type="checkbox"] { accent-color: var(--orange); cursor: pointer; }
+
+  .exc-option-label {
+    font-family: 'Barlow', sans-serif;
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .exc-option-owner {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+
+  .exc-owner-tech { background: rgba(245,166,35,0.2); color: var(--tech-color); }
+  .exc-owner-csr { background: rgba(74,168,255,0.2); color: var(--csr-color); }
+
+  .exc-separator {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0;
+  }
+
+  .exc-actions {
+    display: flex;
+    gap: 8px;
+    padding: 4px 8px 0;
+  }
+
+  .exc-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 2px 0;
+    transition: color 0.15s;
+  }
+  .exc-action-btn:hover { color: var(--orange); }
+
+  .controls-spacer { flex: 1; }
+
+  .total-badge {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .total-badge strong {
+    font-size: 18px;
+    color: var(--cream);
+    font-weight: 700;
+  }
+
+  /* SUMMARY CARDS */
+  .summary-section {
+    margin-bottom: 20px;
+  }
+
+  .summary-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .summary-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .summary-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 180px;
+  }
+  .summary-card:hover { border-color: var(--orange); transform: translateY(-1px); }
+  .summary-card.active { border-color: var(--orange); background: var(--orange-dim); }
+
+  .summary-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--cream);
+    min-width: 32px;
+    text-align: right;
+  }
+  .summary-count.zero { color: var(--text-dim); opacity: 0.4; }
+
+  .summary-info { flex: 1; }
+
+  .summary-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .summary-owner {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
+
+  /* LOADING / ERROR */
+  .status-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    color: var(--text-dim);
+  }
+
+  .loading-spinner {
+    display: inline-block;
+    width: 24px; height: 24px;
+    border: 2px solid var(--border);
+    border-top-color: var(--orange);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 12px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* TABLE */
+  .table-wrap {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .table-header-row {
+    background: var(--navy);
+    border-bottom: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 110px 180px 130px 120px 1fr 140px;
+    padding: 0 16px;
+  }
+
+  .th {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 8px;
+  }
+
+  .job-row {
+    display: grid;
+    grid-template-columns: 110px 180px 130px 120px 1fr 140px;
+    padding: 0 16px;
+    border-bottom: 1px solid rgba(58,52,96,0.5);
+    transition: background 0.1s;
+    align-items: center;
+  }
+  .job-row:last-child { border-bottom: none; }
+  .job-row:hover { background: rgba(255,255,255,0.025); }
+
+  .td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+
+  .job-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.03em;
+  }
+
+  .customer-name {
+    font-weight: 500;
+    color: var(--cream);
+  }
+
+  .customer-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 1px;
+  }
+
+  .tech-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .tech-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--tech-color);
+    flex-shrink: 0;
+  }
+
+  .csr-avatar {
+    color: var(--csr-color);
+  }
+
+  .job-date {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .flags-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .flag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 3px 7px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .flag-tech { background: rgba(245,166,35,0.15); color: var(--tech-color); border: 1px solid rgba(245,166,35,0.3); }
+  .flag-csr { background: rgba(74,168,255,0.15); color: var(--csr-color); border: 1px solid rgba(74,168,255,0.3); }
+
+  .flag-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 4px;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+
+  .flag-count .fc-num { color: var(--red); font-size: 15px; }
+
+  /* Estimate details */
+  .est-detail {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-dim);
+  }
+
+  .empty-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+    opacity: 0.4;
+  }
+
+  .empty-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 4px;
+  }
+
+  /* Duplicate warning */
+  .dup-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    color: var(--yellow);
+    background: rgba(245,200,66,0.1);
+    border: 1px solid rgba(245,200,66,0.3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    margin-top: 3px;
+  }
+
+  /* Error state */
+  .error-bar {
+    background: rgba(232,64,64,0.1);
+    border: 1px solid rgba(232,64,64,0.3);
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: var(--red);
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: none;
+  }
+
+  /* Section headers in table */
+  .section-header-row {
+    background: var(--navy);
+    padding: 6px 24px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-count {
+    background: var(--panel-alt);
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 11px;
+    color: var(--cream);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-title">Leak <span>Hounds</span></div>
+    <nav class="nav-links">
+      <a href="#" class="nav-link">Fleet</a>
+      <a href="#" class="nav-link">Crew</a>
+      <a href="#" class="nav-link active">Exceptions</a>
+      <a href="#" class="nav-link">Income</a>
+      <a href="#" class="nav-link">A/R</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <span class="last-updated" id="lastUpdated">—</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- CONTROLS -->
+  <div class="controls">
+
+    <!-- Date range -->
+    <div class="control-group">
+      <div class="control-label">Date Range</div>
+      <div class="date-toggle">
+        <button class="date-btn active" data-range="today" onclick="setDateRange('today', this)">Today</button>
+        <button class="date-btn" data-range="7" onclick="setDateRange('7', this)">Last 7 Days</button>
+        <button class="date-btn" data-range="30" onclick="setDateRange('30', this)">Last 30 Days</button>
+        <button class="date-btn" data-range="custom" onclick="setDateRange('custom', this)">Custom</button>
+      </div>
+    </div>
+
+    <div class="custom-dates" id="customDates" style="display:none;">
+      <input type="date" id="dateFrom" onchange="loadData()">
+      <span>→</span>
+      <input type="date" id="dateTo" onchange="loadData()">
+    </div>
+
+    <!-- Responsibility -->
+    <div class="control-group">
+      <div class="control-label">Responsibility</div>
+      <div class="resp-toggle">
+        <button class="resp-btn active-all" data-resp="all" onclick="setResp('all', this)">All</button>
+        <button class="resp-btn" data-resp="tech" onclick="setResp('tech', this)"><span class="dot dot-tech"></span> Tech</button>
+        <button class="resp-btn" data-resp="csr" onclick="setResp('csr', this)"><span class="dot dot-csr"></span> CSR</button>
+      </div>
+    </div>
+
+    <!-- Person filter -->
+    <div class="control-group">
+      <div class="control-label">Person</div>
+      <select class="filter-select" id="personFilter" onchange="applyFilters()">
+        <option value="all">All People</option>
+      </select>
+    </div>
+
+    <!-- Exception type filter -->
+    <div class="control-group">
+      <div class="control-label">Exception Type</div>
+      <div class="exception-filter-wrap">
+        <button class="exception-filter-btn" id="excFilterBtn" onclick="toggleExcDropdown()">All Exception Types</button>
+        <div class="exception-dropdown" id="excDropdown">
+          <div class="exc-actions">
+            <button class="exc-action-btn" onclick="selectAllExc()">Select All</button>
+            <button class="exc-action-btn" onclick="clearAllExc()">Clear All</button>
+          </div>
+          <div class="exc-separator"></div>
+          <!-- populated by JS -->
+        </div>
+      </div>
+    </div>
+
+    <div class="controls-spacer"></div>
+
+    <div class="total-badge">
+      <strong id="totalExceptions">—</strong> exceptions across <strong id="totalJobs">—</strong> jobs
+    </div>
+
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-section">
+    <div class="summary-title">Exception Breakdown — click to filter</div>
+    <div class="summary-grid" id="summaryGrid"></div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-bar" id="errorBar"></div>
+
+  <!-- TABLE -->
+  <div id="tableArea">
+    <div class="status-bar">
+      <div class="loading-spinner"></div>
+      <div>Loading jobs from HCP...</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const WORKER = 'https://plain-sound-343c.brent-8ce.workers.dev';
+
+// Exception definitions
+const EXCEPTIONS = [
+  { id: 'no_estimate',      label: 'No Estimate Created',       owner: 'tech', shortLabel: 'No Estimate' },
+  { id: 'no_report_item',   label: 'No Report Line Item',        owner: 'tech', shortLabel: 'No Report Item' },
+  { id: 'no_notes',         label: 'No Private Notes',           owner: 'tech', shortLabel: 'No Notes' },
+  { id: 'commission_zero',  label: 'Commission $0 / Blank',      owner: 'tech', shortLabel: 'Commission Blank' },
+  { id: 'low_photos',       label: 'Fewer than 5 Photos',        owner: 'tech', shortLabel: 'Low Photos' },
+  { id: 'missing_lastname', label: 'Customer Missing Last Name', owner: 'csr',  shortLabel: 'No Last Name' },
+  { id: 'missing_email',    label: 'Missing Email',              owner: 'csr',  shortLabel: 'No Email' },
+  { id: 'missing_phone',    label: 'Missing Phone',              owner: 'csr',  shortLabel: 'No Phone' },
+  { id: 'missing_leadsrc',  label: 'Lead Source Missing',        owner: 'csr',  shortLabel: 'No Lead Source' },
+  { id: 'missing_jobtype',  label: 'Job Type / Biz Unit Blank',  owner: 'csr',  shortLabel: 'No Job Type' },
+  { id: 'duplicate_cust',   label: 'Possible Duplicate Customer',owner: 'csr',  shortLabel: 'Dup Customer' },
+];
+
+// State
+let state = {
+  dateRange: 'today',
+  dateFrom: null,
+  dateTo: null,
+  resp: 'all',
+  person: 'all',
+  excTypes: new Set(EXCEPTIONS.map(e => e.id)),
+  rawJobs: [],
+  rawEstimates: [],
+  rawCustomers: [],
+  employees: [],
+  loading: false,
+};
+
+// --- Init exception dropdown ---
+function initExcDropdown() {
+  const dd = document.getElementById('excDropdown');
+  const actionsEl = dd.querySelector('.exc-actions');
+  const sepEl = dd.querySelector('.exc-separator');
+
+  EXCEPTIONS.forEach(exc => {
+    const div = document.createElement('div');
+    div.className = 'exc-option';
+    div.innerHTML = `
+      <input type="checkbox" id="exc_${exc.id}" checked onchange="onExcChange()">
+      <label class="exc-option-label" for="exc_${exc.id}">${exc.label}</label>
+      <span class="exc-option-owner exc-owner-${exc.owner}">${exc.owner.toUpperCase()}</span>
+    `;
+    dd.appendChild(div);
+  });
+}
+
+function toggleExcDropdown() {
+  const dd = document.getElementById('excDropdown');
+  const btn = document.getElementById('excFilterBtn');
+  dd.classList.toggle('open');
+  btn.classList.toggle('open');
+}
+
+function onExcChange() {
+  state.excTypes = new Set();
+  EXCEPTIONS.forEach(exc => {
+    if (document.getElementById(`exc_${exc.id}`)?.checked) state.excTypes.add(exc.id);
+  });
+  updateExcFilterLabel();
+  applyFilters();
+}
+
+function selectAllExc() {
+  EXCEPTIONS.forEach(exc => { const el = document.getElementById(`exc_${exc.id}`); if (el) el.checked = true; });
+  state.excTypes = new Set(EXCEPTIONS.map(e => e.id));
+  updateExcFilterLabel();
+  applyFilters();
+}
+
+function clearAllExc() {
+  EXCEPTIONS.forEach(exc => { const el = document.getElementById(`exc_${exc.id}`); if (el) el.checked = false; });
+  state.excTypes = new Set();
+  updateExcFilterLabel();
+  applyFilters();
+}
+
+function updateExcFilterLabel() {
+  const btn = document.getElementById('excFilterBtn');
+  const count = state.excTypes.size;
+  const total = EXCEPTIONS.length;
+  btn.textContent = count === total ? 'All Exception Types' : count === 0 ? 'No Types Selected' : `${count} Types Selected`;
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.exception-filter-wrap');
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('excDropdown')?.classList.remove('open');
+    document.getElementById('excFilterBtn')?.classList.remove('open');
+  }
+});
+
+// --- Date helpers ---
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function nDaysAgoStr(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().split('T')[0];
+}
+
+function getDateRange() {
+  if (state.dateRange === 'today') {
+    const t = todayStr();
+    return { from: t + 'T00:00:00', to: t + 'T23:59:59' };
+  } else if (state.dateRange === '7') {
+    return { from: nDaysAgoStr(7) + 'T00:00:00', to: todayStr() + 'T23:59:59' };
+  } else if (state.dateRange === '30') {
+    return { from: nDaysAgoStr(30) + 'T00:00:00', to: todayStr() + 'T23:59:59' };
+  } else {
+    const f = document.getElementById('dateFrom').value;
+    const t = document.getElementById('dateTo').value;
+    return { from: (f || nDaysAgoStr(7)) + 'T00:00:00', to: (t || todayStr()) + 'T23:59:59' };
+  }
+}
+
+function setDateRange(range, btn) {
+  state.dateRange = range;
+  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customDates').style.display = range === 'custom' ? 'flex' : 'none';
+  if (range !== 'custom') loadData();
+}
+
+function setResp(resp, btn) {
+  state.resp = resp;
+  document.querySelectorAll('.resp-btn').forEach(b => {
+    b.classList.remove('active-all', 'active-tech', 'active-csr');
+  });
+  btn.classList.add(`active-${resp}`);
+  // update person dropdown options
+  populatePersonFilter();
+  applyFilters();
+}
+
+// --- API fetch helpers ---
+async function hcpFetch(path) {
+  const res = await fetch(`${WORKER}/hcp${path}`);
+  if (!res.ok) throw new Error(`HCP API error: ${res.status}`);
+  return res.json();
+}
+
+async function fetchAllPages(basePath, key) {
+  let page = 1;
+  let results = [];
+  while (true) {
+    const sep = basePath.includes('?') ? '&' : '?';
+    const data = await hcpFetch(`${basePath}${sep}page=${page}&page_size=200`);
+    const items = data[key] || data.results || [];
+    results = results.concat(items);
+    if (items.length < 200) break;
+    page++;
+  }
+  return results;
+}
+
+// --- Load data ---
+async function loadData() {
+  const { from, to } = getDateRange();
+  showLoading();
+  hideError();
+
+  try {
+    const [jobsData, estimatesData, employeesData] = await Promise.all([
+      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200&sort_by=scheduled_start&sort_direction=asc`),
+      hcpFetch(`/estimates?page_size=200&sort_by=created_at&sort_direction=desc`),
+      hcpFetch(`/employees`),
+    ]);
+
+    state.rawJobs = (jobsData.jobs || jobsData.results || []).filter(j => !j.invoice_number?.includes('-'));
+    state.rawEstimates = estimatesData.estimates || estimatesData.results || [];
+    state.employees = employeesData.employees || employeesData.results || [];
+
+    populatePersonFilter();
+    applyFilters();
+
+    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (err) {
+    showError('Could not load data: ' + err.message);
+    document.getElementById('tableArea').innerHTML = '';
+  }
+}
+
+function populatePersonFilter() {
+  const sel = document.getElementById('personFilter');
+  const current = sel.value;
+
+  // Build person list based on responsibility filter
+  let people = [];
+  if (state.resp === 'all' || state.resp === 'tech') {
+    // Techs from employees list
+    state.employees.forEach(e => {
+      const name = `${e.first_name} ${e.last_name}`.trim();
+      if (!people.find(p => p.id === e.id)) people.push({ id: e.id, name, role: 'tech' });
+    });
+  }
+  if (state.resp === 'all' || state.resp === 'csr') {
+    // CSRs: derive from created_by on jobs
+    const csrMap = {};
+    state.rawJobs.forEach(j => {
+      if (j.created_by) {
+        const id = j.created_by.id || j.created_by;
+        const name = j.created_by.first_name ? `${j.created_by.first_name} ${j.created_by.last_name}` : id;
+        if (!csrMap[id]) csrMap[id] = name;
+      }
+    });
+    Object.entries(csrMap).forEach(([id, name]) => {
+      if (!people.find(p => p.id === id)) people.push({ id, name, role: 'csr' });
+    });
+  }
+
+  sel.innerHTML = '<option value="all">All People</option>';
+  people.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.name;
+    sel.appendChild(opt);
+  });
+
+  if (people.find(p => p.id === current)) sel.value = current;
+}
+
+// --- Exception detection ---
+function detectExceptions(job, estimates) {
+  const flags = [];
+
+  // Match estimates to this job by customer id
+  const jobEstimates = estimates.filter(e =>
+    e.customer?.id === job.customer?.id &&
+    e.job_id === job.id
+  );
+  // Also try matching by job_id alone
+  const allJobEst = estimates.filter(e => e.job_id === job.id || (e.customer?.id === job.customer?.id && isWithin24h(e.created_at, job.scheduled_start)));
+
+  // 1. No estimate
+  if (allJobEst.length === 0) flags.push('no_estimate');
+
+  // 2. No report line item — check line_items for "report" keyword
+  const hasReport = (job.line_items || []).some(li =>
+    /report/i.test(li.name || '') || /report of findings/i.test(li.name || '')
+  );
+  if (!hasReport) flags.push('no_report_item');
+
+  // 3. No private notes
+  if (!job.private_note || job.private_note.trim().length < 5) flags.push('no_notes');
+
+  // 4. Commission blank/zero
+  const commission = job.commission_amount || job.technician_commission || 0;
+  if (!commission || commission === 0) flags.push('commission_zero');
+
+  // 5. Photos < 5
+  const photoCount = (job.attachments || []).filter(a => a.type === 'image' || /\.(jpg|jpeg|png|webp|heic)/i.test(a.filename || '')).length;
+  if (photoCount < 5) flags.push('low_photos');
+
+  // CSR flags on customer
+  const cust = job.customer || {};
+  if (!cust.last_name || cust.last_name.trim() === '') flags.push('missing_lastname');
+  if (!cust.email || cust.email.trim() === '') flags.push('missing_email');
+  if (!cust.mobile_number && !cust.home_number && !cust.work_number) flags.push('missing_phone');
+
+  // 9. Lead source
+  if (!job.lead_source && !job.customer_lead_source) flags.push('missing_leadsrc');
+
+  // 10. Job type / biz unit
+  if (!job.job_type && !job.business_unit) flags.push('missing_jobtype');
+
+  return flags;
+}
+
+function isWithin24h(ts1, ts2) {
+  if (!ts1 || !ts2) return false;
+  return Math.abs(new Date(ts1) - new Date(ts2)) < 86400000;
+}
+
+// --- Apply filters & render ---
+function applyFilters() {
+  state.person = document.getElementById('personFilter').value;
+
+  // Build exceptions per job
+  const jobsWithExceptions = state.rawJobs.map(job => {
+    const flags = detectExceptions(job, state.rawEstimates);
+    return { job, flags };
+  }).filter(({ flags }) => flags.length > 0);
+
+  // Filter by responsibility
+  const filteredJobs = jobsWithExceptions.map(({ job, flags }) => {
+    let visibleFlags = flags;
+    if (state.resp !== 'all') {
+      visibleFlags = flags.filter(f => {
+        const exc = EXCEPTIONS.find(e => e.id === f);
+        return exc && exc.owner === state.resp;
+      });
+    }
+    // Filter by selected exception types
+    visibleFlags = visibleFlags.filter(f => state.excTypes.has(f));
+    return { job, flags: visibleFlags };
+  }).filter(({ flags }) => flags.length > 0);
+
+  // Filter by person
+  const personFiltered = filteredJobs.filter(({ job }) => {
+    if (state.person === 'all') return true;
+    // Check if assigned tech matches
+    const assigned = (job.assigned_employees || []);
+    if (assigned.find(e => e.id === state.person)) return true;
+    // Check created_by for CSR
+    if (job.created_by?.id === state.person || job.created_by === state.person) return true;
+    return false;
+  });
+
+  renderSummary(personFiltered);
+  renderTable(personFiltered);
+
+  const totalExc = personFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
+  document.getElementById('totalExceptions').textContent = totalExc;
+  document.getElementById('totalJobs').textContent = personFiltered.length;
+}
+
+function renderSummary(jobsWithFlags) {
+  const grid = document.getElementById('summaryGrid');
+  grid.innerHTML = '';
+
+  EXCEPTIONS.forEach(exc => {
+    // skip if filtered out by resp
+    if (state.resp !== 'all' && exc.owner !== state.resp) return;
+    // skip if not in selected exc types
+    if (!state.excTypes.has(exc.id)) return;
+
+    const count = jobsWithFlags.filter(({ flags }) => flags.includes(exc.id)).length;
+
+    const card = document.createElement('div');
+    card.className = 'summary-card' + (count === 0 ? '' : '');
+    card.onclick = () => toggleSummaryFilter(exc.id, card);
+    card.dataset.excId = exc.id;
+
+    card.innerHTML = `
+      <div class="summary-count ${count === 0 ? 'zero' : ''}">${count}</div>
+      <div class="summary-info">
+        <div class="summary-label">${exc.label}</div>
+        <div class="summary-owner" style="color: ${exc.owner === 'tech' ? 'var(--tech-color)' : 'var(--csr-color)'}">${exc.owner.toUpperCase()}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+let activeSummaryFilter = null;
+function toggleSummaryFilter(excId, card) {
+  if (activeSummaryFilter === excId) {
+    activeSummaryFilter = null;
+    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active'));
+    // restore all exc checkboxes
+    selectAllExc();
+  } else {
+    activeSummaryFilter = excId;
+    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    // filter to just this exc type
+    EXCEPTIONS.forEach(exc => {
+      const el = document.getElementById(`exc_${exc.id}`);
+      if (el) el.checked = exc.id === excId;
+    });
+    state.excTypes = new Set([excId]);
+    updateExcFilterLabel();
+    applyFilters();
+  }
+}
+
+function renderTable(jobsWithFlags) {
+  const area = document.getElementById('tableArea');
+
+  if (jobsWithFlags.length === 0) {
+    area.innerHTML = `
+      <div class="table-wrap">
+        <div class="empty-state">
+          <div class="empty-icon">✓</div>
+          <div class="empty-title">No exceptions found</div>
+          <div style="font-size:13px; color:var(--text-dim); margin-top:4px;">All jobs in this range look good for the selected filters.</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  let html = `
+    <div class="table-wrap">
+      <div class="table-header-row">
+        <div class="th">Job #</div>
+        <div class="th">Customer</div>
+        <div class="th">Tech</div>
+        <div class="th">Entered By</div>
+        <div class="th">Exceptions</div>
+        <div class="th">Scheduled</div>
+      </div>`;
+
+  jobsWithFlags.forEach(({ job, flags }) => {
+    const techNames = (job.assigned_employees || []).map(e => e.first_name || '?').join(', ') || '—';
+    const techInitials = (job.assigned_employees || []).map(e => (e.first_name?.[0] || '') + (e.last_name?.[0] || '')).join(', ') || '?';
+    const enteredBy = job.created_by ? `${job.created_by.first_name || ''} ${job.created_by.last_name || ''}`.trim() : '—';
+    const enteredInitials = enteredBy !== '—' ? enteredBy.split(' ').map(n => n[0] || '').join('') : '?';
+
+    const cust = job.customer || {};
+    const custName = `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Unknown';
+    const custAddr = cust.address?.street || '';
+
+    const scheduledDate = job.scheduled_start ? new Date(job.scheduled_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+    const scheduledTime = job.scheduled_start ? new Date(job.scheduled_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+
+    const flagHtml = flags.map(fid => {
+      const exc = EXCEPTIONS.find(e => e.id === fid);
+      if (!exc) return '';
+      return `<span class="flag flag-${exc.owner}">${exc.shortLabel}</span>`;
+    }).join('');
+
+    html += `
+      <div class="job-row">
+        <div class="td"><div class="job-number">#${job.invoice_number || job.id?.slice(-6)}</div></div>
+        <div class="td">
+          <div class="customer-name">${custName}</div>
+          ${custAddr ? `<div class="customer-sub">${custAddr}</div>` : ''}
+        </div>
+        <div class="td">
+          <div class="tech-name">
+            <div class="tech-avatar">${techInitials}</div>
+            <span>${techNames}</span>
+          </div>
+        </div>
+        <div class="td">
+          <div class="tech-name">
+            <div class="tech-avatar csr-avatar">${enteredInitials}</div>
+            <span>${enteredBy}</span>
+          </div>
+        </div>
+        <div class="td"><div class="flags-wrap">${flagHtml}</div></div>
+        <div class="td">
+          <div class="job-date">${scheduledDate}</div>
+          <div class="job-date" style="font-size:11px;">${scheduledTime}</div>
+        </div>
+      </div>`;
+  });
+
+  html += '</div>';
+  area.innerHTML = html;
+}
+
+function showLoading() {
+  document.getElementById('tableArea').innerHTML = `
+    <div class="status-bar">
+      <div class="loading-spinner"></div>
+      <div style="margin-top:8px; color:var(--text-dim);">Loading jobs from HCP...</div>
+    </div>`;
+  document.getElementById('summaryGrid').innerHTML = '';
+  document.getElementById('totalExceptions').textContent = '—';
+  document.getElementById('totalJobs').textContent = '—';
+}
+
+function showError(msg) {
+  const bar = document.getElementById('errorBar');
+  bar.textContent = '⚠ ' + msg;
+  bar.style.display = 'block';
+}
+
+function hideError() {
+  document.getElementById('errorBar').style.display = 'none';
+}
+
+// --- Boot ---
+initExcDropdown();
+loadData();
+</script>
+</body>
+</html>
