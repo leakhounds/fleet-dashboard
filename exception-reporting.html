@@ -1085,9 +1085,9 @@ function getDateRange() {
     return dateStr + time + sign + hh + ':' + mm;
   }
   if (state.dateRange === '7') {
-    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(nDaysFromNowStr(14), true) };
+    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(todayStr(), true) };
   } else if (state.dateRange === '30') {
-    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(nDaysFromNowStr(30), true) };
+    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(todayStr(), true) };
   } else {
     const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
     const t = document.getElementById('dateTo').value || todayStr();
@@ -1137,7 +1137,7 @@ async function loadData() {
 
   try {
     const [jobsData, estimatesData, employeesData] = await Promise.all([
-      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200&work_status[]=scheduled&work_status[]=in_progress&work_status[]=completed&work_status[]=unscheduled`),
+      hcpFetch(`/jobs?created_at_min=${encodeURIComponent(from)}&created_at_max=${encodeURIComponent(to)}&page_size=200`),
       hcpFetch(`/estimates?page_size=200&sort_by=created_at&sort_direction=desc`),
       hcpFetch(`/employees`),
     ]);
