@@ -877,27 +877,42 @@ document.addEventListener('click', e => {
 
 // --- Date helpers ---
 function todayStr() {
-  return new Date().toISOString().split('T')[0];
+  const d = new Date();
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 }
 
 function nDaysAgoStr(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().split('T')[0];
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
 }
 
 function getDateRange() {
+  // HCP requires full ISO8601 with offset e.g. 2026-02-27T09:30:00-08:00
+  function toHCP(dateStr, endOfDay) {
+    const offset = new Date().getTimezoneOffset();
+    const sign = offset <= 0 ? '+' : '-';
+    const absOffset = Math.abs(offset);
+    const hh = String(Math.floor(absOffset / 60)).padStart(2, '0');
+    const mm = String(absOffset % 60).padStart(2, '0');
+    const time = endOfDay ? 'T23:59:59' : 'T00:00:00';
+    return dateStr + time + sign + hh + ':' + mm;
+  }
   if (state.dateRange === 'today') {
     const t = todayStr();
-    return { from: t, to: t };
+    return { from: toHCP(t, false), to: toHCP(t, true) };
   } else if (state.dateRange === '7') {
-    return { from: nDaysAgoStr(7), to: todayStr() };
+    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(todayStr(), true) };
   } else if (state.dateRange === '30') {
-    return { from: nDaysAgoStr(30), to: todayStr() };
+    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(todayStr(), true) };
   } else {
     const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
     const t = document.getElementById('dateTo').value || todayStr();
-    return { from: f, to: t };
+    return { from: toHCP(f, false), to: toHCP(t, true) };
   }
 }
 
@@ -923,7 +938,10 @@ function setResp(resp, btn) {
 // --- API fetch helpers ---
 async function hcpFetch(path) {
   const res = await fetch(`${WORKER}/hcp${path}`);
-  if (!res.ok) throw new Error(`HCP API error: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`HCP API error: ${res.status} — ${body}`);
+  }
   return res.json();
 }
 
