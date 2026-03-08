@@ -24,6 +24,7 @@
     --text-dim: #9490b0;
     --tech-color: #f5a623;
     --csr-color: #4aa8ff;
+    --owner-color: #3ddc84;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -232,6 +233,7 @@
   .resp-btn.active-all { background: var(--panel-alt); color: var(--cream); }
   .resp-btn.active-tech { background: rgba(245,166,35,0.2); color: var(--tech-color); }
   .resp-btn.active-csr { background: rgba(74,168,255,0.2); color: var(--csr-color); }
+  .resp-btn.active-owner { background: rgba(61,220,132,0.2); color: var(--owner-color); }
 
   .dot {
     width: 8px; height: 8px;
@@ -240,6 +242,7 @@
   }
   .dot-tech { background: var(--tech-color); }
   .dot-csr { background: var(--csr-color); }
+  .dot-owner { background: var(--owner-color); }
 
   /* Person filter */
   select.filter-select {
@@ -335,6 +338,7 @@
 
   .exc-owner-tech { background: rgba(245,166,35,0.2); color: var(--tech-color); }
   .exc-owner-csr { background: rgba(74,168,255,0.2); color: var(--csr-color); }
+  .exc-owner-owner { background: rgba(61,220,132,0.2); color: var(--owner-color); }
 
   .exc-separator {
     height: 1px;
@@ -483,7 +487,7 @@
     background: var(--navy);
     border-bottom: 1px solid var(--border);
     display: grid;
-    grid-template-columns: 110px 180px 130px 120px 1fr 140px;
+    grid-template-columns: 110px 180px 130px 110px 1fr 140px;
     padding: 0 16px;
   }
 
@@ -499,7 +503,7 @@
 
   .job-row {
     display: grid;
-    grid-template-columns: 110px 180px 130px 120px 1fr 140px;
+    grid-template-columns: 110px 180px 130px 110px 1fr 140px;
     padding: 0 16px;
     border-bottom: 1px solid rgba(58,52,96,0.5);
     transition: background 0.1s;
@@ -580,6 +584,7 @@
 
   .flag-tech { background: rgba(245,166,35,0.15); color: var(--tech-color); border: 1px solid rgba(245,166,35,0.3); }
   .flag-csr { background: rgba(74,168,255,0.15); color: var(--csr-color); border: 1px solid rgba(74,168,255,0.3); }
+  .flag-owner { background: rgba(61,220,132,0.15); color: var(--owner-color); border: 1px solid rgba(61,220,132,0.3); }
 
   .flag-count {
     font-family: 'Barlow Condensed', sans-serif;
@@ -724,6 +729,7 @@
         <button class="resp-btn active-all" data-resp="all" onclick="setResp('all', this)">All</button>
         <button class="resp-btn" data-resp="tech" onclick="setResp('tech', this)"><span class="dot dot-tech"></span> Tech</button>
         <button class="resp-btn" data-resp="csr" onclick="setResp('csr', this)"><span class="dot dot-csr"></span> CSR</button>
+        <button class="resp-btn" data-resp="owner" onclick="setResp('owner', this)"><span class="dot dot-owner"></span> Owner</button>
       </div>
     </div>
 
@@ -733,6 +739,18 @@
       <select class="filter-select" id="personFilter" onchange="applyFilters()">
         <option value="all">All People</option>
       </select>
+    </div>
+
+    <!-- Job status filter -->
+    <div class="control-group">
+      <div class="control-label">Job Status</div>
+      <div class="date-toggle">
+        <button class="date-btn active" data-status="all" onclick="setJobStatus('all', this)">All</button>
+        <button class="date-btn" data-status="scheduled" onclick="setJobStatus('scheduled', this)">Booked</button>
+        <button class="date-btn" data-status="in_progress" onclick="setJobStatus('in_progress', this)">In Progress</button>
+        <button class="date-btn" data-status="completed" onclick="setJobStatus('completed', this)">Completed</button>
+        <button class="date-btn" data-status="canceled" onclick="setJobStatus('canceled', this)">Canceled</button>
+      </div>
     </div>
 
     <!-- Exception type filter -->
@@ -783,17 +801,19 @@ const WORKER = 'https://plain-sound-343c.brent-8ce.workers.dev';
 
 // Exception definitions
 const EXCEPTIONS = [
-  { id: 'no_estimate',      label: 'No Estimate Created',       owner: 'tech', shortLabel: 'No Estimate' },
-  { id: 'no_report_item',   label: 'No Report Line Item',        owner: 'tech', shortLabel: 'No Report Item' },
-  { id: 'no_notes',         label: 'No Private Notes',           owner: 'tech', shortLabel: 'No Notes' },
-  { id: 'commission_zero',  label: 'Commission $0 / Blank',      owner: 'tech', shortLabel: 'Commission Blank' },
-  { id: 'low_photos',       label: 'Fewer than 5 Photos',        owner: 'tech', shortLabel: 'Low Photos' },
-  { id: 'missing_lastname', label: 'Customer Missing Last Name', owner: 'csr',  shortLabel: 'No Last Name' },
-  { id: 'missing_email',    label: 'Missing Email',              owner: 'csr',  shortLabel: 'No Email' },
-  { id: 'missing_phone',    label: 'Missing Phone',              owner: 'csr',  shortLabel: 'No Phone' },
-  { id: 'missing_leadsrc',  label: 'Lead Source Missing',        owner: 'csr',  shortLabel: 'No Lead Source' },
-  { id: 'missing_jobtype',  label: 'Job Type / Biz Unit Blank',  owner: 'csr',  shortLabel: 'No Job Type' },
-  { id: 'duplicate_cust',   label: 'Possible Duplicate Customer',owner: 'csr',  shortLabel: 'Dup Customer' },
+  { id: 'no_estimate',      label: 'Estimate',           owner: 'tech',  shortLabel: 'Estimate' },
+  { id: 'no_report_item',   label: 'Report Line Item',   owner: 'tech',  shortLabel: 'Report Item' },
+  { id: 'no_notes_tech',    label: 'Tech Notes',         owner: 'tech',  shortLabel: 'Tech Notes' },
+  { id: 'low_photos',       label: 'Photos (min 5)',     owner: 'tech',  shortLabel: 'Photos' },
+  { id: 'missing_lastname', label: 'Last Name',          owner: 'csr',   shortLabel: 'Last Name' },
+  { id: 'missing_email',    label: 'Email',              owner: 'csr',   shortLabel: 'Email' },
+  { id: 'missing_phone',    label: 'Phone',              owner: 'csr',   shortLabel: 'Phone' },
+  { id: 'missing_leadsrc',  label: 'Lead Source',        owner: 'csr',   shortLabel: 'Lead Source' },
+  { id: 'missing_jobtype',  label: 'Job Type / Biz Unit',owner: 'csr',   shortLabel: 'Job Type' },
+  { id: 'missing_notes_csr',label: 'Booking Note',       owner: 'csr',   shortLabel: 'Booking Note' },
+  { id: 'duplicate_cust',   label: 'Duplicate Customer', owner: 'csr',   shortLabel: 'Dup Customer' },
+  { id: 'commission_zero',  label: 'Commission',         owner: 'owner', shortLabel: 'Commission' },
+  { id: 'missing_materials',label: 'Materials / Subs',   owner: 'owner', shortLabel: 'Materials' },
 ];
 
 // State
@@ -803,6 +823,7 @@ let state = {
   dateTo: null,
   resp: 'all',
   person: 'all',
+  jobStatus: 'all',
   excTypes: new Set(EXCEPTIONS.map(e => e.id)),
   rawJobs: [],
   rawEstimates: [],
@@ -875,6 +896,13 @@ document.addEventListener('click', e => {
   }
 });
 
+function setJobStatus(status, btn) {
+  state.jobStatus = status;
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilters();
+}
+
 // --- Date helpers ---
 function todayStr() {
   const d = new Date();
@@ -929,7 +957,7 @@ function setResp(resp, btn) {
   document.querySelectorAll('.resp-btn').forEach(b => {
     b.classList.remove('active-all', 'active-tech', 'active-csr');
   });
-  btn.classList.add(`active-${resp}`);
+  btn.classList.add(resp === 'all' ? 'active-all' : resp === 'tech' ? 'active-tech' : resp === 'csr' ? 'active-csr' : 'active-owner');
   // update person dropdown options
   populatePersonFilter();
   applyFilters();
@@ -1046,12 +1074,19 @@ function detectExceptions(job, estimates) {
   );
   if (!hasReport) flags.push('no_report_item');
 
-  // 3. No private notes
-  if (!job.private_note || job.private_note.trim().length < 5) flags.push('no_notes');
+  // 3. Notes logic — tech note expected on completed jobs, CSR booking note on all jobs
+  const notesArr = job.notes || [];
+  const hasAnyNote = notesArr.length > 0;
+  if (job.work_status === 'completed' && !hasAnyNote) flags.push('no_notes_tech');
+  if (!hasAnyNote) flags.push('missing_notes_csr');
 
-  // 4. Commission blank/zero
+  // 4. Commission blank/zero (Owner)
   const commission = job.commission_amount || job.technician_commission || 0;
   if (!commission || commission === 0) flags.push('commission_zero');
+
+  // 4b. Materials / Subs — check line items for any cost-type entries (Owner)
+  const hasInputMaterials = (job.input_materials || []).length > 0;
+  if (!hasInputMaterials && job.work_status === 'completed') flags.push('missing_materials');
 
   // 5. Photos < 5
   const photoCount = (job.attachments || []).filter(a => a.type === 'image' || /\.(jpg|jpeg|png|webp|heic)/i.test(a.filename || '')).length;
@@ -1107,17 +1142,28 @@ function applyFilters() {
     // Check if assigned tech matches
     const assigned = (job.assigned_employees || []);
     if (assigned.find(e => e.id === state.person)) return true;
-    // Check created_by for CSR
-    if (job.created_by?.id === state.person || job.created_by === state.person) return true;
+    // created_by not available in API
     return false;
   });
 
-  renderSummary(personFiltered);
-  renderTable(personFiltered);
+  // Filter by job status
+  const statusFiltered = personFiltered.filter(({ job }) => {
+    if (state.jobStatus === 'all') return true;
+    if (state.jobStatus === 'in_progress') {
+      // in_progress = work_status in_progress OR has on_my_way_at/started_at timestamps
+      return job.work_status === 'in_progress' ||
+        job.work_timestamps?.on_my_way_at ||
+        job.work_timestamps?.started_at;
+    }
+    return job.work_status === state.jobStatus;
+  });
 
-  const totalExc = personFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
+  renderSummary(statusFiltered);
+  renderTable(statusFiltered);
+
+  const totalExc = statusFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
   document.getElementById('totalExceptions').textContent = totalExc;
-  document.getElementById('totalJobs').textContent = personFiltered.length;
+  document.getElementById('totalJobs').textContent = statusFiltered.length;
 }
 
 function renderSummary(jobsWithFlags) {
@@ -1141,7 +1187,7 @@ function renderSummary(jobsWithFlags) {
       <div class="summary-count ${count === 0 ? 'zero' : ''}">${count}</div>
       <div class="summary-info">
         <div class="summary-label">${exc.label}</div>
-        <div class="summary-owner" style="color: ${exc.owner === 'tech' ? 'var(--tech-color)' : 'var(--csr-color)'}">${exc.owner.toUpperCase()}</div>
+        <div class="summary-owner" style="color: ${exc.owner === 'tech' ? 'var(--tech-color)' : exc.owner === 'csr' ? 'var(--csr-color)' : 'var(--owner-color)'}">${exc.owner.toUpperCase()}</div>
       </div>
     `;
     grid.appendChild(card);
@@ -1191,7 +1237,7 @@ function renderTable(jobsWithFlags) {
         <div class="th">Job #</div>
         <div class="th">Customer</div>
         <div class="th">Tech</div>
-        <div class="th">Entered By</div>
+        <div class="th">Status</div>
         <div class="th">Exceptions</div>
         <div class="th">Scheduled</div>
       </div>`;
@@ -1199,8 +1245,9 @@ function renderTable(jobsWithFlags) {
   jobsWithFlags.forEach(({ job, flags }) => {
     const techNames = (job.assigned_employees || []).map(e => e.first_name || '?').join(', ') || '—';
     const techInitials = (job.assigned_employees || []).map(e => (e.first_name?.[0] || '') + (e.last_name?.[0] || '')).join(', ') || '?';
-    const enteredBy = job.created_by ? `${job.created_by.first_name || ''} ${job.created_by.last_name || ''}`.trim() : '—';
-    const enteredInitials = enteredBy !== '—' ? enteredBy.split(' ').map(n => n[0] || '').join('') : '?';
+    const statusColors = { scheduled: 'var(--blue)', in_progress: 'var(--yellow)', completed: 'var(--green)', canceled: 'var(--red)', unscheduled: 'var(--text-dim)' };
+    const statusColor = statusColors[job.work_status] || 'var(--text-dim)';
+    const statusLabel = (job.work_status || 'unknown').replace('_', ' ').toUpperCase();
 
     const cust = job.customer || {};
     const custName = `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Unknown';
@@ -1229,10 +1276,7 @@ function renderTable(jobsWithFlags) {
           </div>
         </div>
         <div class="td">
-          <div class="tech-name">
-            <div class="tech-avatar csr-avatar">${enteredInitials}</div>
-            <span>${enteredBy}</span>
-          </div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:0.06em;color:${statusColor}">${statusLabel}</span>
         </div>
         <div class="td"><div class="flags-wrap">${flagHtml}</div></div>
         <div class="td">
