@@ -1157,42 +1157,19 @@ async function loadData() {
 }
 
 function populatePersonFilter() {
-  const sel = document.getElementById('personFilter');
-  const current = sel.value;
-
-  // Build person list based on responsibility filter
-  let people = [];
-  if (state.resp === 'all' || state.resp === 'tech') {
-    // Techs from employees list
+  ROLES.forEach(role => {
+    const sel = document.getElementById(`person-${role.id}`);
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="all">All People</option>';
     state.employees.forEach(e => {
-      const name = `${e.first_name} ${e.last_name}`.trim();
-      if (!people.find(p => p.id === e.id)) people.push({ id: e.id, name, role: 'tech' });
+      const opt = document.createElement('option');
+      opt.value = e.id;
+      opt.textContent = `${e.first_name} ${e.last_name}`.trim();
+      sel.appendChild(opt);
     });
-  }
-  if (state.resp === 'all' || state.resp === 'csr') {
-    // CSRs: derive from created_by on jobs
-    const csrMap = {};
-    state.rawJobs.forEach(j => {
-      if (j.created_by) {
-        const id = j.created_by.id || j.created_by;
-        const name = j.created_by.first_name ? `${j.created_by.first_name} ${j.created_by.last_name}` : id;
-        if (!csrMap[id]) csrMap[id] = name;
-      }
-    });
-    Object.entries(csrMap).forEach(([id, name]) => {
-      if (!people.find(p => p.id === id)) people.push({ id, name, role: 'csr' });
-    });
-  }
-
-  sel.innerHTML = '<option value="all">All People</option>';
-  people.forEach(p => {
-    const opt = document.createElement('option');
-    opt.value = p.id;
-    opt.textContent = p.name;
-    sel.appendChild(opt);
+    if (current && [...sel.options].find(o => o.value === current)) sel.value = current;
   });
-
-  if (people.find(p => p.id === current)) sel.value = current;
 }
 
 // --- Exception detection ---
@@ -1328,33 +1305,6 @@ function updateRoleCounts(jobsWithFlags) {
   });
 }
 
-function renderSummary(jobsWithFlags) {
-  const grid = document.getElementById('summaryGrid');
-  grid.innerHTML = '';
-
-  EXCEPTIONS.forEach(exc => {
-    // skip if filtered out by resp
-    if (state.resp !== 'all' && exc.owner !== state.resp) return;
-    // skip if not in selected exc types
-    if (!state.excTypes.has(exc.id)) return;
-
-    const count = jobsWithFlags.filter(({ flags }) => flags.includes(exc.id)).length;
-
-    const card = document.createElement('div');
-    card.className = 'summary-card' + (count === 0 ? '' : '');
-    card.onclick = () => toggleSummaryFilter(exc.id, card);
-    card.dataset.excId = exc.id;
-
-    card.innerHTML = `
-      <div class="summary-count ${count === 0 ? 'zero' : ''}">${count}</div>
-      <div class="summary-info">
-        <div class="summary-label">${exc.label}</div>
-        <div class="summary-owner" style="color: ${exc.owner === 'tech' ? 'var(--tech-color)' : exc.owner === 'csr' ? 'var(--csr-color)' : 'var(--owner-color)'}">${exc.owner.toUpperCase()}</div>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
 
 function renderTable(jobsWithFlags) {
   const area = document.getElementById('tableArea');
@@ -1436,7 +1386,7 @@ function showLoading() {
       <div class="loading-spinner"></div>
       <div style="margin-top:8px; color:var(--text-dim);">Loading jobs from HCP...</div>
     </div>`;
-  document.getElementById('summaryGrid').innerHTML = '';
+
   document.getElementById('totalExceptions').textContent = '—';
   document.getElementById('totalJobs').textContent = '—';
 }
