@@ -1242,10 +1242,20 @@ function applyFilters() {
   // Filter by job status
   const statusFiltered = jobsWithExceptions.filter(({ job }) => {
     if (state.jobStatus === 'all') return true;
-    if (state.jobStatus === 'in_progress') {
-      return job.work_status === 'in_progress';
+    const s = (job.work_status || '').toLowerCase();
+    if (state.jobStatus === 'completed') {
+      return s.startsWith('complete');
     }
-    return job.work_status === state.jobStatus;
+    if (state.jobStatus === 'in_progress') {
+      return s === 'in progress' || s === 'in_progress';
+    }
+    if (state.jobStatus === 'scheduled') {
+      return s === 'scheduled' || s === 'needs scheduling';
+    }
+    if (state.jobStatus === 'canceled') {
+      return s === 'canceled' || s === 'cancelled';
+    }
+    return s === state.jobStatus;
   });
 
   // For each role, apply its own exception type + person filter
@@ -1335,9 +1345,16 @@ function renderTable(jobsWithFlags) {
   jobsWithFlags.forEach(({ job, flags }) => {
     const techNames = (job.assigned_employees || []).map(e => e.first_name || '?').join(', ') || '—';
     const techInitials = (job.assigned_employees || []).map(e => (e.first_name?.[0] || '') + (e.last_name?.[0] || '')).join(', ') || '?';
-    const statusColors = { scheduled: 'var(--blue)', in_progress: 'var(--yellow)', completed: 'var(--green)', canceled: 'var(--red)', unscheduled: 'var(--text-dim)' };
-    const statusColor = statusColors[job.work_status] || 'var(--text-dim)';
-    const statusLabel = (job.work_status || 'unknown').replace('_', ' ').toUpperCase();
+    const s = (job.work_status || '').toLowerCase();
+    const statusColor = s.startsWith('complete') ? 'var(--green)' :
+      (s === 'in progress' || s === 'in_progress') ? 'var(--yellow)' :
+      s === 'scheduled' ? 'var(--blue)' :
+      (s === 'canceled' || s === 'cancelled') ? 'var(--red)' : 'var(--text-dim)';
+    const statusLabel = s.startsWith('complete') ? 'COMPLETE' :
+      (s === 'in progress' || s === 'in_progress') ? 'IN PROGRESS' :
+      s === 'scheduled' ? 'SCHEDULED' :
+      (s === 'canceled' || s === 'cancelled') ? 'CANCELED' :
+      (job.work_status || 'UNKNOWN').toUpperCase();
 
     const cust = job.customer || {};
     const custName = `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Unknown';
