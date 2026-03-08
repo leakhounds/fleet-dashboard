@@ -887,26 +887,17 @@ function nDaysAgoStr(n) {
 }
 
 function getDateRange() {
-  // HCP expects ISO8601 with timezone offset e.g. 2026-03-06T00:00:00-08:00
-  function toHCPDate(dateStr, endOfDay) {
-    const d = new Date(dateStr + (endOfDay ? 'T23:59:59' : 'T00:00:00'));
-    const offset = -d.getTimezoneOffset();
-    const sign = offset >= 0 ? '+' : '-';
-    const pad = n => String(Math.floor(Math.abs(n))).padStart(2, '0');
-    const offsetStr = sign + pad(offset / 60) + ':' + pad(offset % 60);
-    return dateStr + (endOfDay ? 'T23:59:59' : 'T00:00:00') + offsetStr;
-  }
   if (state.dateRange === 'today') {
     const t = todayStr();
-    return { from: toHCPDate(t, false), to: toHCPDate(t, true) };
+    return { from: t, to: t };
   } else if (state.dateRange === '7') {
-    return { from: toHCPDate(nDaysAgoStr(7), false), to: toHCPDate(todayStr(), true) };
+    return { from: nDaysAgoStr(7), to: todayStr() };
   } else if (state.dateRange === '30') {
-    return { from: toHCPDate(nDaysAgoStr(30), false), to: toHCPDate(todayStr(), true) };
+    return { from: nDaysAgoStr(30), to: todayStr() };
   } else {
     const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
     const t = document.getElementById('dateTo').value || todayStr();
-    return { from: toHCPDate(f, false), to: toHCPDate(t, true) };
+    return { from: f, to: t };
   }
 }
 
