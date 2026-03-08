@@ -967,7 +967,7 @@ async function loadData() {
 
   try {
     const [jobsData, estimatesData, employeesData] = await Promise.all([
-      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200&sort_by=scheduled_start&sort_direction=asc`),
+      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200`),
       hcpFetch(`/estimates?page_size=200&sort_by=created_at&sort_direction=desc`),
       hcpFetch(`/employees`),
     ]);
