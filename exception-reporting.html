@@ -679,6 +679,166 @@
     font-size: 11px;
     color: var(--cream);
   }
+
+  /* ROLE DROPDOWNS — styled to match existing controls */
+  .role-wrap {
+    position: relative;
+    display: inline-block;
+  }
+
+  .role-btn {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 28px 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%239490b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+  .role-btn:hover { border-color: var(--cream); color: var(--cream); }
+  .role-btn.open   { border-color: var(--orange); }
+  .role-btn.has-active { border-color: currentColor; }
+
+  .role-btn-tech  { color: var(--tech-color);  }
+  .role-btn-csr   { color: var(--csr-color);   }
+  .role-btn-owner { color: var(--owner-color); }
+  .role-btn-tech.has-active  { background-color: rgba(245,166,35,0.12);  }
+  .role-btn-csr.has-active   { background-color: rgba(74,168,255,0.12);  }
+  .role-btn-owner.has-active { background-color: rgba(61,220,132,0.12);  }
+
+  .role-badge {
+    background: var(--panel-alt);
+    border-radius: 10px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--cream);
+    min-width: 18px;
+    text-align: center;
+  }
+  .role-badge.has-exc { color: var(--red); }
+
+  .role-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--panel-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-width: 220px;
+    z-index: 200;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    overflow: hidden;
+  }
+  .role-dropdown.open { display: block; }
+
+  .role-dd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .role-dd-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .role-dd-person {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Barlow', sans-serif;
+    font-size: 12px;
+    padding: 4px 22px 4px 8px;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 8 5'%3E%3Cpath d='M1 1l3 3 3-3' stroke='%239490b0' stroke-width='1.2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    max-width: 120px;
+  }
+  .role-dd-person:focus { border-color: var(--orange); }
+
+  .role-dd-items {
+    padding: 6px 6px;
+  }
+
+  .role-dd-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.1s;
+    user-select: none;
+  }
+  .role-dd-item:hover { background: rgba(255,255,255,0.05); }
+  .role-dd-item input[type="checkbox"] {
+    accent-color: var(--orange);
+    cursor: pointer;
+    flex-shrink: 0;
+    width: 14px; height: 14px;
+  }
+  .role-dd-item-label {
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+  }
+  .role-dd-item-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-dim);
+    min-width: 18px;
+    text-align: right;
+  }
+  .role-dd-item-count.nonzero { color: var(--red); }
+
+  .role-dd-footer {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--border);
+  }
+  .role-dd-footer button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 7px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border-right: 1px solid var(--border);
+  }
+  .role-dd-footer button:last-child { border-right: none; }
+  .role-dd-footer button:hover { color: var(--orange); background: rgba(209,65,36,0.08); }
+
 </style>
 </head>
 <body>
@@ -741,8 +901,13 @@
 
   </div>
 
-  <!-- ROLE PANELS -->
-  <div class="role-panels" id="rolePanels"></div>
+  <!-- ROLE FILTERS -->
+  <div class="controls" style="margin-top:-8px; margin-bottom:20px;">
+    <div class="control-group">
+      <div class="control-label">Filter by Role</div>
+      <div style="display:flex;gap:8px;" id="roleButtonRow"></div>
+    </div>
+  </div>
 
   <!-- ERROR -->
   <div class="error-bar" id="errorBar"></div>
@@ -791,7 +956,7 @@ let state = {
   loading: false,
 };
 
-// --- Role panels ---
+// --- Role dropdowns ---
 const ROLES = [
   { id: 'tech',  label: 'Tech',  color: 'var(--tech-color)' },
   { id: 'csr',   label: 'CSR',   color: 'var(--csr-color)' },
@@ -799,45 +964,72 @@ const ROLES = [
 ];
 
 function initRolePanels() {
-  const container = document.getElementById('rolePanels');
+  const row = document.getElementById('roleButtonRow');
   ROLES.forEach(role => {
     const excs = EXCEPTIONS.filter(e => e.owner === role.id);
-    const panel = document.createElement('div');
-    panel.className = 'role-panel';
-    panel.id = `role-panel-${role.id}`;
-
-    panel.innerHTML = `
-      <div class="role-header">
-        <div class="role-header-left">
-          <span class="dot dot-${role.id}"></span>
-          <span class="role-label role-label-${role.id}">${role.label}</span>
-          <button class="role-toggle-all" onclick="toggleRoleAll('${role.id}', event)">All</button>
+    const wrap = document.createElement('div');
+    wrap.className = 'role-wrap';
+    wrap.id = `role-wrap-${role.id}`;
+    wrap.innerHTML = `
+      <button class="role-btn role-btn-${role.id} has-active" id="role-btn-${role.id}"
+        onclick="toggleRoleDropdown('${role.id}', event)">
+        <span class="dot dot-${role.id}"></span>
+        ${role.label}
+        <span class="role-badge" id="role-badge-${role.id}">—</span>
+      </button>
+      <div class="role-dropdown" id="role-dd-${role.id}">
+        <div class="role-dd-header">
+          <span class="role-dd-title">Filter by person</span>
+          <select class="role-dd-person" id="person-${role.id}" onchange="applyFilters()">
+            <option value="all">All People</option>
+          </select>
         </div>
-        <select class="role-person-select" id="person-${role.id}" onchange="applyFilters()">
-          <option value="all">All People</option>
-        </select>
-      </div>
-      <div class="role-body" id="role-body-${role.id}">
-        ${excs.map(exc => `
-          <label class="role-exc-item">
-            <input type="checkbox" id="exc_${exc.id}" checked onchange="onExcChange()">
-            <span class="role-exc-label">${exc.label}</span>
-            <span class="role-exc-count" id="exc-count-${exc.id}">—</span>
-          </label>
-        `).join('')}
+        <div class="role-dd-items">
+          ${excs.map(exc => `
+            <label class="role-dd-item">
+              <input type="checkbox" id="exc_${exc.id}" checked onchange="onExcChange()">
+              <span class="role-dd-item-label">${exc.label}</span>
+              <span class="role-dd-item-count" id="exc-count-${exc.id}">—</span>
+            </label>
+          `).join('')}
+        </div>
+        <div class="role-dd-footer">
+          <button onclick="setRoleAll('${role.id}', true, event)">All</button>
+          <button onclick="setRoleAll('${role.id}', false, event)">None</button>
+        </div>
       </div>
     `;
-    container.appendChild(panel);
+    row.appendChild(wrap);
+  });
+
+  // Close on outside click
+  document.addEventListener('click', e => {
+    document.querySelectorAll('.role-dropdown.open').forEach(dd => {
+      const wrap = dd.closest('.role-wrap');
+      if (wrap && !wrap.contains(e.target)) {
+        dd.classList.remove('open');
+        dd.previousElementSibling?.classList.remove('open');
+      }
+    });
   });
 }
 
-function toggleRoleAll(roleId, event) {
+function toggleRoleDropdown(roleId, event) {
   event.stopPropagation();
-  const excs = EXCEPTIONS.filter(e => e.owner === roleId);
-  const allChecked = excs.every(e => document.getElementById(`exc_${e.id}`)?.checked);
-  excs.forEach(e => {
-    const el = document.getElementById(`exc_${e.id}`);
-    if (el) el.checked = !allChecked;
+  const dd = document.getElementById(`role-dd-${roleId}`);
+  const btn = document.getElementById(`role-btn-${roleId}`);
+  const wasOpen = dd.classList.contains('open');
+  // Close all
+  document.querySelectorAll('.role-dropdown').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('open'));
+  if (!wasOpen) { dd.classList.add('open'); btn.classList.add('open'); }
+}
+
+function setRoleAll(roleId, checked, event) {
+  event.stopPropagation();
+  EXCEPTIONS.filter(e => e.owner === roleId).forEach(exc => {
+    const el = document.getElementById(`exc_${exc.id}`);
+    if (el) el.checked = checked;
   });
   onExcChange();
 }
@@ -893,9 +1085,9 @@ function getDateRange() {
     return dateStr + time + sign + hh + ':' + mm;
   }
   if (state.dateRange === '7') {
-    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(nDaysFromNowStr(30), true) };
+    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(nDaysFromNowStr(14), true) };
   } else if (state.dateRange === '30') {
-    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(nDaysFromNowStr(60), true) };
+    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(nDaysFromNowStr(30), true) };
   } else {
     const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
     const t = document.getElementById('dateTo').value || todayStr();
@@ -945,7 +1137,7 @@ async function loadData() {
 
   try {
     const [jobsData, estimatesData, employeesData] = await Promise.all([
-      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200`),
+      hcpFetch(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(to)}&page_size=200&work_status[]=scheduled&work_status[]=in_progress&work_status[]=completed&work_status[]=unscheduled`),
       hcpFetch(`/estimates?page_size=200&sort_by=created_at&sort_direction=desc`),
       hcpFetch(`/employees`),
     ]);
@@ -1120,18 +1312,19 @@ function updateRoleCounts(jobsWithFlags) {
     const count = jobsWithFlags.filter(({ flags }) => flags.includes(exc.id)).length;
     const el = document.getElementById(`exc-count-${exc.id}`);
     if (el) {
-      el.textContent = count;
-      el.className = 'role-exc-count' + (count > 0 ? ' has-issues' : '');
+      el.textContent = count || '—';
+      el.className = 'role-dd-item-count' + (count > 0 ? ' nonzero' : '');
     }
   });
-  // Highlight role panel borders if any exceptions
   ROLES.forEach(role => {
-    const panel = document.getElementById(`role-panel-${role.id}`);
-    if (!panel) return;
     const excs = EXCEPTIONS.filter(e => e.owner === role.id);
     const total = jobsWithFlags.reduce((sum, { flags }) =>
       sum + flags.filter(f => excs.find(e => e.id === f)).length, 0);
-    panel.classList.toggle(`active-${role.id}`, total > 0);
+    const badge = document.getElementById(`role-badge-${role.id}`);
+    if (badge) {
+      badge.textContent = total || '—';
+      badge.className = 'role-badge' + (total > 0 ? ' has-exc' : '');
+    }
   });
 }
 
