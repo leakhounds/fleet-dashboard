@@ -709,8 +709,7 @@
     <div class="control-group">
       <div class="control-label">Date Range</div>
       <div class="date-toggle">
-        <button class="date-btn active" data-range="today" onclick="setDateRange('today', this)">Today</button>
-        <button class="date-btn" data-range="7" onclick="setDateRange('7', this)">Last 7 Days</button>
+        <button class="date-btn active" data-range="7" onclick="setDateRange('7', this)">Last 7 Days</button>
         <button class="date-btn" data-range="30" onclick="setDateRange('30', this)">Last 30 Days</button>
         <button class="date-btn" data-range="custom" onclick="setDateRange('custom', this)">Custom</button>
       </div>
@@ -720,25 +719,6 @@
       <input type="date" id="dateFrom" onchange="loadData()">
       <span>→</span>
       <input type="date" id="dateTo" onchange="loadData()">
-    </div>
-
-    <!-- Responsibility -->
-    <div class="control-group">
-      <div class="control-label">Responsibility</div>
-      <div class="resp-toggle">
-        <button class="resp-btn active-all" data-resp="all" onclick="setResp('all', this)">All</button>
-        <button class="resp-btn" data-resp="tech" onclick="setResp('tech', this)"><span class="dot dot-tech"></span> Tech</button>
-        <button class="resp-btn" data-resp="csr" onclick="setResp('csr', this)"><span class="dot dot-csr"></span> CSR</button>
-        <button class="resp-btn" data-resp="owner" onclick="setResp('owner', this)"><span class="dot dot-owner"></span> Owner</button>
-      </div>
-    </div>
-
-    <!-- Person filter -->
-    <div class="control-group">
-      <div class="control-label">Person</div>
-      <select class="filter-select" id="personFilter" onchange="applyFilters()">
-        <option value="all">All People</option>
-      </select>
     </div>
 
     <!-- Job status filter -->
@@ -753,22 +733,6 @@
       </div>
     </div>
 
-    <!-- Exception type filter -->
-    <div class="control-group">
-      <div class="control-label">Exception Type</div>
-      <div class="exception-filter-wrap">
-        <button class="exception-filter-btn" id="excFilterBtn" onclick="toggleExcDropdown()">All Exception Types</button>
-        <div class="exception-dropdown" id="excDropdown">
-          <div class="exc-actions">
-            <button class="exc-action-btn" onclick="selectAllExc()">Select All</button>
-            <button class="exc-action-btn" onclick="clearAllExc()">Clear All</button>
-          </div>
-          <div class="exc-separator"></div>
-          <!-- populated by JS -->
-        </div>
-      </div>
-    </div>
-
     <div class="controls-spacer"></div>
 
     <div class="total-badge">
@@ -777,11 +741,8 @@
 
   </div>
 
-  <!-- SUMMARY CARDS -->
-  <div class="summary-section">
-    <div class="summary-title">Exception Breakdown — click to filter</div>
-    <div class="summary-grid" id="summaryGrid"></div>
-  </div>
+  <!-- ROLE PANELS -->
+  <div class="role-panels" id="rolePanels"></div>
 
   <!-- ERROR -->
   <div class="error-bar" id="errorBar"></div>
@@ -818,11 +779,9 @@ const EXCEPTIONS = [
 
 // State
 let state = {
-  dateRange: 'today',
+  dateRange: '7',
   dateFrom: null,
   dateTo: null,
-  resp: 'all',
-  person: 'all',
   jobStatus: 'all',
   excTypes: new Set(EXCEPTIONS.map(e => e.id)),
   rawJobs: [],
@@ -832,29 +791,55 @@ let state = {
   loading: false,
 };
 
-// --- Init exception dropdown ---
-function initExcDropdown() {
-  const dd = document.getElementById('excDropdown');
-  const actionsEl = dd.querySelector('.exc-actions');
-  const sepEl = dd.querySelector('.exc-separator');
+// --- Role panels ---
+const ROLES = [
+  { id: 'tech',  label: 'Tech',  color: 'var(--tech-color)' },
+  { id: 'csr',   label: 'CSR',   color: 'var(--csr-color)' },
+  { id: 'owner', label: 'Owner', color: 'var(--owner-color)' },
+];
 
-  EXCEPTIONS.forEach(exc => {
-    const div = document.createElement('div');
-    div.className = 'exc-option';
-    div.innerHTML = `
-      <input type="checkbox" id="exc_${exc.id}" checked onchange="onExcChange()">
-      <label class="exc-option-label" for="exc_${exc.id}">${exc.label}</label>
-      <span class="exc-option-owner exc-owner-${exc.owner}">${exc.owner.toUpperCase()}</span>
+function initRolePanels() {
+  const container = document.getElementById('rolePanels');
+  ROLES.forEach(role => {
+    const excs = EXCEPTIONS.filter(e => e.owner === role.id);
+    const panel = document.createElement('div');
+    panel.className = 'role-panel';
+    panel.id = `role-panel-${role.id}`;
+
+    panel.innerHTML = `
+      <div class="role-header">
+        <div class="role-header-left">
+          <span class="dot dot-${role.id}"></span>
+          <span class="role-label role-label-${role.id}">${role.label}</span>
+          <button class="role-toggle-all" onclick="toggleRoleAll('${role.id}', event)">All</button>
+        </div>
+        <select class="role-person-select" id="person-${role.id}" onchange="applyFilters()">
+          <option value="all">All People</option>
+        </select>
+      </div>
+      <div class="role-body" id="role-body-${role.id}">
+        ${excs.map(exc => `
+          <label class="role-exc-item">
+            <input type="checkbox" id="exc_${exc.id}" checked onchange="onExcChange()">
+            <span class="role-exc-label">${exc.label}</span>
+            <span class="role-exc-count" id="exc-count-${exc.id}">—</span>
+          </label>
+        `).join('')}
+      </div>
     `;
-    dd.appendChild(div);
+    container.appendChild(panel);
   });
 }
 
-function toggleExcDropdown() {
-  const dd = document.getElementById('excDropdown');
-  const btn = document.getElementById('excFilterBtn');
-  dd.classList.toggle('open');
-  btn.classList.toggle('open');
+function toggleRoleAll(roleId, event) {
+  event.stopPropagation();
+  const excs = EXCEPTIONS.filter(e => e.owner === roleId);
+  const allChecked = excs.every(e => document.getElementById(`exc_${e.id}`)?.checked);
+  excs.forEach(e => {
+    const el = document.getElementById(`exc_${e.id}`);
+    if (el) el.checked = !allChecked;
+  });
+  onExcChange();
 }
 
 function onExcChange() {
@@ -862,39 +847,8 @@ function onExcChange() {
   EXCEPTIONS.forEach(exc => {
     if (document.getElementById(`exc_${exc.id}`)?.checked) state.excTypes.add(exc.id);
   });
-  updateExcFilterLabel();
   applyFilters();
 }
-
-function selectAllExc() {
-  EXCEPTIONS.forEach(exc => { const el = document.getElementById(`exc_${exc.id}`); if (el) el.checked = true; });
-  state.excTypes = new Set(EXCEPTIONS.map(e => e.id));
-  updateExcFilterLabel();
-  applyFilters();
-}
-
-function clearAllExc() {
-  EXCEPTIONS.forEach(exc => { const el = document.getElementById(`exc_${exc.id}`); if (el) el.checked = false; });
-  state.excTypes = new Set();
-  updateExcFilterLabel();
-  applyFilters();
-}
-
-function updateExcFilterLabel() {
-  const btn = document.getElementById('excFilterBtn');
-  const count = state.excTypes.size;
-  const total = EXCEPTIONS.length;
-  btn.textContent = count === total ? 'All Exception Types' : count === 0 ? 'No Types Selected' : `${count} Types Selected`;
-}
-
-// Close dropdown on outside click
-document.addEventListener('click', e => {
-  const wrap = document.querySelector('.exception-filter-wrap');
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('excDropdown')?.classList.remove('open');
-    document.getElementById('excFilterBtn')?.classList.remove('open');
-  }
-});
 
 function setJobStatus(status, btn) {
   state.jobStatus = status;
@@ -919,6 +873,14 @@ function nDaysAgoStr(n) {
     String(d.getDate()).padStart(2, '0');
 }
 
+function nDaysFromNowStr(n) {
+  const d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+}
+
 function getDateRange() {
   // HCP requires full ISO8601 with offset e.g. 2026-02-27T09:30:00-08:00
   function toHCP(dateStr, endOfDay) {
@@ -930,13 +892,10 @@ function getDateRange() {
     const time = endOfDay ? 'T23:59:59' : 'T00:00:00';
     return dateStr + time + sign + hh + ':' + mm;
   }
-  if (state.dateRange === 'today') {
-    const t = todayStr();
-    return { from: toHCP(t, false), to: toHCP(t, true) };
-  } else if (state.dateRange === '7') {
-    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(todayStr(), true) };
+  if (state.dateRange === '7') {
+    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(nDaysFromNowStr(30), true) };
   } else if (state.dateRange === '30') {
-    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(todayStr(), true) };
+    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(nDaysFromNowStr(60), true) };
   } else {
     const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
     const t = document.getElementById('dateTo').value || todayStr();
@@ -952,16 +911,7 @@ function setDateRange(range, btn) {
   if (range !== 'custom') loadData();
 }
 
-function setResp(resp, btn) {
-  state.resp = resp;
-  document.querySelectorAll('.resp-btn').forEach(b => {
-    b.classList.remove('active-all', 'active-tech', 'active-csr');
-  });
-  btn.classList.add(resp === 'all' ? 'active-all' : resp === 'tech' ? 'active-tech' : resp === 'csr' ? 'active-csr' : 'active-owner');
-  // update person dropdown options
-  populatePersonFilter();
-  applyFilters();
-}
+// setResp removed — replaced by role panels
 
 // --- API fetch helpers ---
 async function hcpFetch(path) {
@@ -1114,56 +1064,75 @@ function isWithin24h(ts1, ts2) {
 
 // --- Apply filters & render ---
 function applyFilters() {
-  state.person = document.getElementById('personFilter').value;
-
-  // Build exceptions per job
+  // Build full exception list per job
   const jobsWithExceptions = state.rawJobs.map(job => {
     const flags = detectExceptions(job, state.rawEstimates);
     return { job, flags };
-  }).filter(({ flags }) => flags.length > 0);
-
-  // Filter by responsibility
-  const filteredJobs = jobsWithExceptions.map(({ job, flags }) => {
-    let visibleFlags = flags;
-    if (state.resp !== 'all') {
-      visibleFlags = flags.filter(f => {
-        const exc = EXCEPTIONS.find(e => e.id === f);
-        return exc && exc.owner === state.resp;
-      });
-    }
-    // Filter by selected exception types
-    visibleFlags = visibleFlags.filter(f => state.excTypes.has(f));
-    return { job, flags: visibleFlags };
-  }).filter(({ flags }) => flags.length > 0);
-
-  // Filter by person
-  const personFiltered = filteredJobs.filter(({ job }) => {
-    if (state.person === 'all') return true;
-    // Check if assigned tech matches
-    const assigned = (job.assigned_employees || []);
-    if (assigned.find(e => e.id === state.person)) return true;
-    // created_by not available in API
-    return false;
   });
 
   // Filter by job status
-  const statusFiltered = personFiltered.filter(({ job }) => {
+  const statusFiltered = jobsWithExceptions.filter(({ job }) => {
     if (state.jobStatus === 'all') return true;
     if (state.jobStatus === 'in_progress') {
-      // in_progress = work_status in_progress OR has on_my_way_at/started_at timestamps
-      return job.work_status === 'in_progress' ||
-        job.work_timestamps?.on_my_way_at ||
-        job.work_timestamps?.started_at;
+      return job.work_status === 'in_progress';
     }
     return job.work_status === state.jobStatus;
   });
 
-  renderSummary(statusFiltered);
-  renderTable(statusFiltered);
+  // For each role, apply its own exception type + person filter
+  // A job is shown if it has at least one visible flag across any active role
+  const finalJobs = statusFiltered.map(({ job, flags }) => {
+    let visibleFlags = [];
+    ROLES.forEach(role => {
+      const personSel = document.getElementById(`person-${role.id}`);
+      const personVal = personSel ? personSel.value : 'all';
 
-  const totalExc = statusFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
+      // Check person filter for this role
+      let personMatch = true;
+      if (personVal !== 'all') {
+        personMatch = (job.assigned_employees || []).find(e => e.id === personVal);
+      }
+      if (!personMatch) return;
+
+      // Add flags for this role that are checked
+      const roleFlags = flags.filter(f => {
+        const exc = EXCEPTIONS.find(e => e.id === f);
+        return exc && exc.owner === role.id && state.excTypes.has(f);
+      });
+      visibleFlags = visibleFlags.concat(roleFlags);
+    });
+    // Deduplicate
+    visibleFlags = [...new Set(visibleFlags)];
+    return { job, flags: visibleFlags };
+  }).filter(({ flags }) => flags.length > 0);
+
+  // Update exception counts on role panel badges
+  updateRoleCounts(statusFiltered);
+  renderTable(finalJobs);
+
+  const totalExc = finalJobs.reduce((sum, { flags }) => sum + flags.length, 0);
   document.getElementById('totalExceptions').textContent = totalExc;
-  document.getElementById('totalJobs').textContent = statusFiltered.length;
+  document.getElementById('totalJobs').textContent = finalJobs.length;
+}
+
+function updateRoleCounts(jobsWithFlags) {
+  EXCEPTIONS.forEach(exc => {
+    const count = jobsWithFlags.filter(({ flags }) => flags.includes(exc.id)).length;
+    const el = document.getElementById(`exc-count-${exc.id}`);
+    if (el) {
+      el.textContent = count;
+      el.className = 'role-exc-count' + (count > 0 ? ' has-issues' : '');
+    }
+  });
+  // Highlight role panel borders if any exceptions
+  ROLES.forEach(role => {
+    const panel = document.getElementById(`role-panel-${role.id}`);
+    if (!panel) return;
+    const excs = EXCEPTIONS.filter(e => e.owner === role.id);
+    const total = jobsWithFlags.reduce((sum, { flags }) =>
+      sum + flags.filter(f => excs.find(e => e.id === f)).length, 0);
+    panel.classList.toggle(`active-${role.id}`, total > 0);
+  });
 }
 
 function renderSummary(jobsWithFlags) {
@@ -1192,28 +1161,6 @@ function renderSummary(jobsWithFlags) {
     `;
     grid.appendChild(card);
   });
-}
-
-let activeSummaryFilter = null;
-function toggleSummaryFilter(excId, card) {
-  if (activeSummaryFilter === excId) {
-    activeSummaryFilter = null;
-    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active'));
-    // restore all exc checkboxes
-    selectAllExc();
-  } else {
-    activeSummaryFilter = excId;
-    document.querySelectorAll('.summary-card').forEach(c => c.classList.remove('active'));
-    card.classList.add('active');
-    // filter to just this exc type
-    EXCEPTIONS.forEach(exc => {
-      const el = document.getElementById(`exc_${exc.id}`);
-      if (el) el.checked = exc.id === excId;
-    });
-    state.excTypes = new Set([excId]);
-    updateExcFilterLabel();
-    applyFilters();
-  }
 }
 
 function renderTable(jobsWithFlags) {
@@ -1312,7 +1259,7 @@ function hideError() {
 }
 
 // --- Boot ---
-initExcDropdown();
+initRolePanels();
 loadData();
 </script>
 </body>
