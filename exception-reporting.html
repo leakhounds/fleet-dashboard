@@ -904,6 +904,142 @@
   .summary-owner-tag.csr   { color: var(--csr-color); }
   .summary-owner-tag.owner { color: var(--owner-color); }
 
+
+  /* SUMMARY VIEW */
+  .role-section {
+    margin-bottom: 24px;
+  }
+
+  .role-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .role-section-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .role-section-title.tech  { color: var(--tech-color); }
+  .role-section-title.csr   { color: var(--csr-color); }
+  .role-section-title.owner { color: var(--owner-color); }
+
+  .role-section-total {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  .person-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .person-row {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .person-row:hover { border-color: rgba(255,255,255,0.2); transform: translateX(3px); }
+  .person-row.clean { cursor: default; opacity: 0.5; }
+  .person-row.clean:hover { transform: none; border-color: var(--border); }
+
+  .person-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .person-avatar.tech  { background: rgba(245,166,35,0.15);  color: var(--tech-color);  border: 1px solid rgba(245,166,35,0.3); }
+  .person-avatar.csr   { background: rgba(74,168,255,0.15);  color: var(--csr-color);   border: 1px solid rgba(74,168,255,0.3); }
+  .person-avatar.owner { background: rgba(61,220,132,0.15);  color: var(--owner-color); border: 1px solid rgba(61,220,132,0.3); }
+
+  .person-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.03em;
+    flex: 1;
+  }
+
+  .person-job-count {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-dim);
+  }
+
+  .person-job-count strong {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--cream);
+    margin-right: 4px;
+  }
+
+  .person-job-count.has-issues strong { color: var(--red); }
+
+  .person-clean-tag {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--green);
+  }
+
+  .person-chevron {
+    color: var(--text-dim);
+    font-size: 16px;
+    margin-left: 4px;
+  }
+
+  /* BACK BUTTON */
+  .back-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .back-btn:hover { border-color: var(--orange); color: var(--orange); }
+
+  .drilldown-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--cream);
+  }
+
 </style>
 </head>
 <body>
@@ -927,10 +1063,8 @@
 
 <div class="main">
 
-  <!-- CONTROLS -->
+  <!-- SHARED CONTROLS (always visible) -->
   <div class="controls">
-
-    <!-- Date range -->
     <div class="control-group">
       <div class="control-label">Date Range</div>
       <div class="date-toggle">
@@ -939,55 +1073,67 @@
         <button class="date-btn" data-range="custom" onclick="setDateRange('custom', this)">Custom</button>
       </div>
     </div>
-
     <div class="custom-dates" id="customDates" style="display:none;">
       <input type="date" id="dateFrom" onchange="loadData()">
       <span>→</span>
       <input type="date" id="dateTo" onchange="loadData()">
     </div>
-
-    <!-- Job status filter -->
-    <div class="control-group">
-      <div class="control-label">Job Status</div>
-      <div class="date-toggle">
-        <button class="date-btn active" data-status="all" onclick="setJobStatus('all', this)">All</button>
-        <button class="date-btn" data-status="scheduled" onclick="setJobStatus('scheduled', this)">Booked</button>
-        <button class="date-btn" data-status="in_progress" onclick="setJobStatus('in_progress', this)">In Progress</button>
-        <button class="date-btn" data-status="completed" onclick="setJobStatus('completed', this)">Completed</button>
-        <button class="date-btn" data-status="canceled" onclick="setJobStatus('canceled', this)">Canceled</button>
-      </div>
-    </div>
-
     <div class="controls-spacer"></div>
-
-    <div class="total-badge">
-      <strong id="totalExceptions">—</strong> exceptions across <strong id="totalJobs">—</strong> jobs
-    </div>
-
-  </div>
-
-  <!-- ROLE FILTERS -->
-  <div class="controls" style="margin-top:-8px; margin-bottom:20px;">
-    <div class="control-group">
-      <div class="control-label">Filter by Role</div>
-      <div style="display:flex;gap:8px;" id="roleButtonRow"></div>
-    </div>
-  </div>
-
-  <!-- SUMMARY CARDS -->
-  <div class="summary-section">
-    <div class="summary-grid" id="summaryGrid"></div>
+    <span class="last-updated" id="lastUpdatedInline" style="font-size:11px;color:var(--text-dim);"></span>
   </div>
 
   <!-- ERROR -->
   <div class="error-bar" id="errorBar"></div>
 
-  <!-- TABLE -->
-  <div id="tableArea">
-    <div class="status-bar">
+  <!-- VIEW: SUMMARY -->
+  <div id="viewSummary">
+    <div id="summaryLoading" class="status-bar" style="display:none;">
       <div class="loading-spinner"></div>
-      <div>Loading jobs from HCP...</div>
+      <div style="margin-top:8px;color:var(--text-dim);">Loading...</div>
     </div>
+    <div id="summaryContent"></div>
+  </div>
+
+  <!-- VIEW: DRILL-DOWN -->
+  <div id="viewDrilldown" style="display:none;">
+
+    <!-- Drill-down controls -->
+    <div class="controls" style="margin-bottom:16px;">
+      <button class="back-btn" onclick="showSummary()">← Back</button>
+      <div class="drilldown-title" id="drilldownTitle"></div>
+      <div class="controls-spacer"></div>
+      <!-- Job status filter -->
+      <div class="control-group">
+        <div class="control-label">Job Status</div>
+        <div class="date-toggle">
+          <button class="date-btn active" data-status="all" onclick="setJobStatus('all', this)">All</button>
+          <button class="date-btn" data-status="scheduled" onclick="setJobStatus('scheduled', this)">Booked</button>
+          <button class="date-btn" data-status="in_progress" onclick="setJobStatus('in_progress', this)">In Progress</button>
+          <button class="date-btn" data-status="completed" onclick="setJobStatus('completed', this)">Completed</button>
+          <button class="date-btn" data-status="canceled" onclick="setJobStatus('canceled', this)">Canceled</button>
+        </div>
+      </div>
+      <div class="total-badge">
+        <strong id="totalExceptions">—</strong> exceptions across <strong id="totalJobs">—</strong> jobs
+      </div>
+    </div>
+
+    <!-- Exception type filters (role dropdowns) -->
+    <div class="controls" style="margin-top:-8px; margin-bottom:16px;">
+      <div class="control-group">
+        <div class="control-label">Exception Type</div>
+        <div style="display:flex;gap:8px;" id="roleButtonRow"></div>
+      </div>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="summary-section" style="margin-bottom:16px;">
+      <div class="summary-grid" id="summaryGrid"></div>
+    </div>
+
+    <!-- Table -->
+    <div id="tableArea"></div>
+
   </div>
 
 </div>
@@ -1025,7 +1171,47 @@ let state = {
   rawCustomers: [],
   employees: [],
   loading: false,
+  // drilldown
+  view: 'summary',       // 'summary' | 'drilldown'
+  drillRole: null,       // 'tech' | 'csr' | 'owner'
+  drillPersonId: null,   // employee id or null (for csr/owner)
+  drillPersonName: null,
+  allJobsWithFlags: [],  // full computed dataset, reused by both views
 };
+
+// ── View switching ────────────────────────────────────────────────────────────
+function showSummary() {
+  state.view = 'summary';
+  state.drillRole = null;
+  state.drillPersonId = null;
+  state.summaryFilter = null;
+  document.getElementById('viewSummary').style.display = '';
+  document.getElementById('viewDrilldown').style.display = 'none';
+  renderSummaryView(state.allJobsWithFlags);
+}
+
+function showDrilldown(role, personId, personName) {
+  state.view = 'drilldown';
+  state.drillRole = role;
+  state.drillPersonId = personId;
+  state.drillPersonName = personName;
+  state.summaryFilter = null;
+  // Reset job status filter to All
+  state.jobStatus = 'all';
+  document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+  document.querySelector('[data-status="all"]')?.classList.add('active');
+
+  document.getElementById('viewSummary').style.display = 'none';
+  document.getElementById('viewDrilldown').style.display = '';
+
+  const roleLabels = { tech: '🟠 Tech', csr: '🔵 CSR', owner: '🟢 Manager' };
+  const title = personName
+    ? `${roleLabels[role]} — ${personName}`
+    : roleLabels[role];
+  document.getElementById('drilldownTitle').textContent = title;
+
+  applyDrilldownFilters();
+}
 
 // --- Role dropdowns ---
 const ROLES = [
@@ -1218,9 +1404,17 @@ async function loadData() {
     state.employees = employeesData.employees || employeesData.results || [];
 
     populatePersonFilter();
-    applyFilters();
+    computeAllFlags();
+    const ts = 'Updated ' + new Date().toLocaleTimeString();
+    document.getElementById('lastUpdated').textContent = ts;
+    const inline = document.getElementById('lastUpdatedInline');
+    if (inline) inline.textContent = ts;
 
-    document.getElementById('lastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    if (state.view === 'drilldown') {
+      applyDrilldownFilters();
+    } else {
+      renderSummaryView(state.allJobsWithFlags);
+    }
   } catch (err) {
     showError('Could not load data: ' + err.message);
     document.getElementById('tableArea').innerHTML = '';
@@ -1241,6 +1435,153 @@ function populatePersonFilter() {
     });
     if (current && [...sel.options].find(o => o.value === current)) sel.value = current;
   });
+}
+
+// Called after data loads — renders summary view
+function computeAllFlags() {
+  state.allJobsWithFlags = state.rawJobs.map(job => {
+    const flags = detectExceptions(job, state.rawEstimates);
+    return { job, flags };
+  });
+}
+
+// ── SUMMARY VIEW rendering ────────────────────────────────────────────────────
+function renderSummaryView(jobsWithFlags) {
+  const container = document.getElementById('summaryContent');
+  if (!container) return;
+
+  const roleConfig = [
+    { id: 'tech',  label: 'Tech',    colorClass: 'tech'  },
+    { id: 'csr',   label: 'CSR',     colorClass: 'csr'   },
+    { id: 'owner', label: 'Manager', colorClass: 'owner' },
+  ];
+
+  let html = '';
+
+  roleConfig.forEach(role => {
+    const roleExcIds = EXCEPTIONS.filter(e => e.owner === role.id).map(e => e.id);
+
+    // Jobs with any flag belonging to this role
+    const roleJobs = jobsWithFlags.filter(({ flags }) =>
+      flags.some(f => roleExcIds.includes(f))
+    );
+
+    if (role.id === 'tech') {
+      // Group by assigned tech
+      const techMap = {};
+      state.employees.forEach(e => {
+        techMap[e.id] = { name: `${e.first_name} ${e.last_name}`.trim(), jobs: [] };
+      });
+      roleJobs.forEach(({ job, flags }) => {
+        const techFlags = flags.filter(f => roleExcIds.includes(f));
+        (job.assigned_employees || []).forEach(e => {
+          if (techMap[e.id]) techMap[e.id].jobs.push({ job, flags: techFlags });
+        });
+      });
+
+      const techRows = Object.entries(techMap)
+        .filter(([, v]) => v.jobs.length > 0)
+        .sort((a, b) => b[1].jobs.length - a[1].jobs.length);
+
+      if (techRows.length === 0 && roleJobs.length === 0) {
+        html += roleSectionHTML(role, `<div class="person-row clean">
+          <div class="person-avatar ${role.colorClass}">✓</div>
+          <div class="person-name" style="color:var(--text-dim)">No tech issues</div>
+          <div class="person-clean-tag">ALL CLEAR</div>
+        </div>`);
+        return;
+      }
+
+      const rows = techRows.map(([empId, { name, jobs }]) => {
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+        return `<div class="person-row" onclick="showDrilldown('tech', '${empId}', '${name}')">
+          <div class="person-avatar ${role.colorClass}">${initials}</div>
+          <div class="person-name">${name}</div>
+          <div class="person-job-count has-issues"><strong>${jobs.length}</strong> job${jobs.length !== 1 ? 's' : ''} to address</div>
+          <div class="person-chevron">›</div>
+        </div>`;
+      }).join('');
+      html += roleSectionHTML(role, rows);
+
+    } else {
+      // CSR / Manager — single row, no name
+      const count = roleJobs.length;
+      const label = role.id === 'csr' ? 'CSR' : 'Manager';
+      const initials = role.id === 'csr' ? 'CSR' : 'MGR';
+      if (count === 0) {
+        html += roleSectionHTML(role, `<div class="person-row clean">
+          <div class="person-avatar ${role.colorClass}">✓</div>
+          <div class="person-name" style="color:var(--text-dim)">No ${label.toLowerCase()} issues</div>
+          <div class="person-clean-tag">ALL CLEAR</div>
+        </div>`);
+      } else {
+        html += roleSectionHTML(role, `<div class="person-row" onclick="showDrilldown('${role.id}', null, null)">
+          <div class="person-avatar ${role.colorClass}">${initials}</div>
+          <div class="person-name">${label}</div>
+          <div class="person-job-count has-issues"><strong>${count}</strong> job${count !== 1 ? 's' : ''} to address</div>
+          <div class="person-chevron">›</div>
+        </div>`);
+      }
+    }
+  });
+
+  container.innerHTML = html;
+}
+
+function roleSectionHTML(role, rowsHTML) {
+  const labels = { tech: 'Tech', csr: 'CSR', owner: 'Manager' };
+  return `<div class="role-section">
+    <div class="role-section-header">
+      <span class="dot dot-${role.id}"></span>
+      <span class="role-section-title ${role.colorClass}">${labels[role.id]}</span>
+    </div>
+    <div class="person-rows">${rowsHTML}</div>
+  </div>`;
+}
+
+// ── DRILLDOWN VIEW filtering & rendering ──────────────────────────────────────
+function applyDrilldownFilters() {
+  // Start with all jobs that have flags for this role
+  const roleExcIds = EXCEPTIONS.filter(e => e.owner === state.drillRole).map(e => e.id);
+
+  let filtered = state.allJobsWithFlags.map(({ job, flags }) => {
+    // Only show flags for this role that are checked
+    const visibleFlags = flags.filter(f =>
+      roleExcIds.includes(f) && state.excTypes.has(f)
+    );
+    return { job, flags: visibleFlags };
+  }).filter(({ flags }) => flags.length > 0);
+
+  // Filter by person for tech
+  if (state.drillRole === 'tech' && state.drillPersonId) {
+    filtered = filtered.filter(({ job }) =>
+      (job.assigned_employees || []).find(e => e.id === state.drillPersonId)
+    );
+  }
+
+  // Filter by job status
+  filtered = filtered.filter(({ job }) => {
+    if (state.jobStatus === 'all') return true;
+    const s = (job.work_status || '').toLowerCase();
+    if (state.jobStatus === 'completed') return s.startsWith('complete');
+    if (state.jobStatus === 'in_progress') return s === 'in progress' || s === 'in_progress';
+    if (state.jobStatus === 'scheduled') return s === 'scheduled' || s === 'needs scheduling';
+    if (state.jobStatus === 'canceled') return s === 'canceled' || s === 'cancelled';
+    return s === state.jobStatus;
+  });
+
+  // Summary card filter
+  const summaryFiltered = state.summaryFilter
+    ? filtered.filter(({ flags }) => flags.includes(state.summaryFilter))
+    : filtered;
+
+  updateRoleCounts(filtered);
+  renderSummary(filtered);
+  renderTable(summaryFiltered);
+
+  const totalExc = summaryFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
+  document.getElementById('totalExceptions').textContent = totalExc;
+  document.getElementById('totalJobs').textContent = summaryFiltered.length;
 }
 
 // --- Exception detection ---
@@ -1304,73 +1645,13 @@ function isWithin24h(ts1, ts2) {
 
 // --- Apply filters & render ---
 function applyFilters() {
-  // Build full exception list per job
-  const jobsWithExceptions = state.rawJobs.map(job => {
-    const flags = detectExceptions(job, state.rawEstimates);
-    return { job, flags };
-  });
-
-  // Filter by job status
-  const statusFiltered = jobsWithExceptions.filter(({ job }) => {
-    if (state.jobStatus === 'all') return true;
-    const s = (job.work_status || '').toLowerCase();
-    if (state.jobStatus === 'completed') {
-      return s.startsWith('complete');
-    }
-    if (state.jobStatus === 'in_progress') {
-      return s === 'in progress' || s === 'in_progress';
-    }
-    if (state.jobStatus === 'scheduled') {
-      return s === 'scheduled' || s === 'needs scheduling';
-    }
-    if (state.jobStatus === 'canceled') {
-      return s === 'canceled' || s === 'cancelled';
-    }
-    return s === state.jobStatus;
-  });
-
-  // For each role, apply its own exception type + person filter
-  // A job is shown if it has at least one visible flag across any active role
-  const finalJobs = statusFiltered.map(({ job, flags }) => {
-    let visibleFlags = [];
-    ROLES.forEach(role => {
-      const personSel = document.getElementById(`person-${role.id}`);
-      const personVal = personSel ? personSel.value : 'all';
-
-      // Check person filter for this role
-      let personMatch = true;
-      if (personVal !== 'all') {
-        personMatch = (job.assigned_employees || []).find(e => e.id === personVal);
-      }
-      if (!personMatch) return;
-
-      // Add flags for this role that are checked
-      const roleFlags = flags.filter(f => {
-        const exc = EXCEPTIONS.find(e => e.id === f);
-        return exc && exc.owner === role.id && state.excTypes.has(f);
-      });
-      visibleFlags = visibleFlags.concat(roleFlags);
-    });
-    // Deduplicate
-    visibleFlags = [...new Set(visibleFlags)];
-    return { job, flags: visibleFlags };
-  }).filter(({ flags }) => flags.length > 0);
-
-  // Update exception counts on role panel badges
-  updateRoleCounts(statusFiltered);
-
-  // Apply summary card filter if one is active
-  const summaryFiltered = state.summaryFilter
-    ? finalJobs.filter(({ flags }) => flags.includes(state.summaryFilter))
-    : finalJobs;
-
-  renderSummary(statusFiltered);
-  renderTable(summaryFiltered);
-
-  const totalExc = summaryFiltered.reduce((sum, { flags }) => sum + flags.length, 0);
-  document.getElementById('totalExceptions').textContent = totalExc;
-  document.getElementById('totalJobs').textContent = summaryFiltered.length;
+  if (state.view === 'drilldown') {
+    applyDrilldownFilters();
+  } else {
+    renderSummaryView(state.allJobsWithFlags);
+  }
 }
+
 
 function updateRoleCounts(jobsWithFlags) {
   EXCEPTIONS.forEach(exc => {
@@ -1530,6 +1811,8 @@ function showError(msg) {
 
 function hideError() {
   document.getElementById('errorBar').style.display = 'none';
+  const summaryLoading = document.getElementById('summaryLoading');
+  if (summaryLoading) summaryLoading.style.display = 'none';
 }
 
 // --- Boot ---
