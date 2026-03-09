@@ -1068,7 +1068,10 @@
     <div class="control-group">
       <div class="control-label">Date Range</div>
       <div class="date-toggle">
-        <button class="date-btn active" data-range="7" onclick="setDateRange('7', this)">Last 7 Days</button>
+        <button class="date-btn active" data-range="thisweek" onclick="setDateRange('thisweek', this)">This Week</button>
+        <button class="date-btn" data-range="lastweek" onclick="setDateRange('lastweek', this)">Last Week</button>
+        <button class="date-btn" data-range="2weeks" onclick="setDateRange('2weeks', this)">Last 2 Weeks</button>
+        <button class="date-btn" data-range="thismonth" onclick="setDateRange('thismonth', this)">This Month</button>
         <button class="date-btn" data-range="30" onclick="setDateRange('30', this)">Last 30 Days</button>
         <button class="date-btn" data-range="custom" onclick="setDateRange('custom', this)">Custom</button>
       </div>
@@ -1160,7 +1163,7 @@ const EXCEPTIONS = [
 
 // State
 let state = {
-  dateRange: '7',
+  dateRange: 'thisweek',
   dateFrom: null,
   dateTo: null,
   jobStatus: 'all',
@@ -1171,6 +1174,8 @@ let state = {
   rawCustomers: [],
   employees: [],
   loading: false,
+  sortCol: 'date',
+  sortDir: 1,
   // drilldown
   view: 'summary',       // 'summary' | 'drilldown'
   drillRole: null,       // 'tech' | 'csr' | 'owner'
@@ -1331,7 +1336,6 @@ function nDaysFromNowStr(n) {
 }
 
 function getDateRange() {
-  // HCP requires full ISO8601 with offset e.g. 2026-02-27T09:30:00-08:00
   function toHCP(dateStr, endOfDay) {
     const offset = new Date().getTimezoneOffset();
     const sign = offset <= 0 ? '+' : '-';
@@ -1341,22 +1345,58 @@ function getDateRange() {
     const time = endOfDay ? 'T23:59:59' : 'T00:00:00';
     return dateStr + time + sign + hh + ':' + mm;
   }
-  if (state.dateRange === '7') {
-    return { from: toHCP(nDaysAgoStr(7), false), to: toHCP(todayStr(), true) };
+  function dateStr(d) {
+    return d.getFullYear() + '-' +
+      String(d.getMonth() + 1).padStart(2, '0') + '-' +
+      String(d.getDate()).padStart(2, '0');
+  }
+  const now = new Date();
+
+  if (state.dateRange === 'thisweek') {
+    // Sunday–Saturday of current week
+    const sun = new Date(now);
+    sun.setDate(now.getDate() - now.getDay());
+    const sat = new Date(sun);
+    sat.setDate(sun.getDate() + 6);
+    return { from: toHCP(dateStr(sun), false), to: toHCP(dateStr(sat), true) };
+
+  } else if (state.dateRange === 'lastweek') {
+    const sun = new Date(now);
+    sun.setDate(now.getDate() - now.getDay() - 7);
+    const sat = new Date(sun);
+    sat.setDate(sun.getDate() + 6);
+    return { from: toHCP(dateStr(sun), false), to: toHCP(dateStr(sat), true) };
+
+  } else if (state.dateRange === '2weeks') {
+    const sun = new Date(now);
+    sun.setDate(now.getDate() - now.getDay() - 7); // start of last week
+    const sat = new Date(now);
+    sat.setDate(now.getDate() - now.getDay() + 6); // end of this week
+    return { from: toHCP(dateStr(sun), false), to: toHCP(dateStr(sat), true) };
+
+  } else if (state.dateRange === 'thismonth') {
+    const first = new Date(now.getFullYear(), now.getMonth(), 1);
+    const last = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return { from: toHCP(dateStr(first), false), to: toHCP(dateStr(last), true) };
+
   } else if (state.dateRange === '30') {
-    return { from: toHCP(nDaysAgoStr(30), false), to: toHCP(todayStr(), true) };
+    const ago = new Date(now);
+    ago.setDate(now.getDate() - 30);
+    return { from: toHCP(dateStr(ago), false), to: toHCP(dateStr(now), true) };
+
   } else {
-    const f = document.getElementById('dateFrom').value || nDaysAgoStr(7);
-    const t = document.getElementById('dateTo').value || todayStr();
+    const f = document.getElementById('dateFrom').value || dateStr(now);
+    const t = document.getElementById('dateTo').value || dateStr(now);
     return { from: toHCP(f, false), to: toHCP(t, true) };
   }
 }
 
 function setDateRange(range, btn) {
   state.dateRange = range;
-  document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
   document.getElementById('customDates').style.display = range === 'custom' ? 'flex' : 'none';
+  // Update active button — date-btn covers both date range and status buttons, so scope it
+  document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+  document.querySelector(`[data-range="${range}"]`)?.classList.add('active');
   if (range !== 'custom') loadData();
 }
 
@@ -1587,53 +1627,56 @@ function applyDrilldownFilters() {
 // --- Exception detection ---
 function detectExceptions(job, estimates) {
   const flags = [];
+  const s = (job.work_status || '').toLowerCase();
+  const isComplete = s.startsWith('complete');
+  const isCanceled = s === 'canceled' || s === 'cancelled';
 
-  // Match estimates to this job by customer id
-  const jobEstimates = estimates.filter(e =>
-    e.customer?.id === job.customer?.id &&
-    e.job_id === job.id
-  );
-  // Also try matching by job_id alone
-  const allJobEst = estimates.filter(e => e.job_id === job.id || (e.customer?.id === job.customer?.id && isWithin24h(e.created_at, job.scheduled_start)));
+  // ── TECH exceptions — only on completed jobs ─────────────────────────────
+  if (isComplete) {
+    // 1. No estimate linked
+    const allJobEst = estimates.filter(e =>
+      e.job_id === job.id ||
+      (e.customer?.id === job.customer?.id && isWithin24h(e.created_at, job.schedule?.scheduled_start))
+    );
+    if (allJobEst.length === 0) flags.push('no_estimate');
 
-  // 1. No estimate
-  if (allJobEst.length === 0) flags.push('no_estimate');
+    // 2. No report line item
+    const hasReport = (job.line_items || []).some(li =>
+      /report/i.test(li.name || '')
+    );
+    if (!hasReport) flags.push('no_report_item');
 
-  // 2. No report line item — check line_items for "report" keyword
-  const hasReport = (job.line_items || []).some(li =>
-    /report/i.test(li.name || '') || /report of findings/i.test(li.name || '')
-  );
-  if (!hasReport) flags.push('no_report_item');
+    // 3. No tech notes on completed job
+    const hasNote = (job.notes || []).length > 0;
+    if (!hasNote) flags.push('no_notes_tech');
 
-  // 3. Notes logic — tech note expected on completed jobs, CSR booking note on all jobs
-  const notesArr = job.notes || [];
-  const hasAnyNote = notesArr.length > 0;
-  if (job.work_status === 'completed' && !hasAnyNote) flags.push('no_notes_tech');
-  if (!hasAnyNote) flags.push('missing_notes_csr');
+    // 4. Photos < 5
+    const photoCount = (job.attachments || []).filter(a =>
+      a.type === 'image' || /\.(jpg|jpeg|png|webp|heic)/i.test(a.filename || '')
+    ).length;
+    if (photoCount < 5) flags.push('low_photos');
+  }
 
-  // 4. Commission blank/zero (Owner)
-  const commission = job.commission_amount || job.technician_commission || 0;
-  if (!commission || commission === 0) flags.push('commission_zero');
+  // ── MANAGER exceptions — only on completed jobs ───────────────────────────
+  if (isComplete) {
+    const commission = job.commission_amount || job.technician_commission || 0;
+    if (!commission) flags.push('commission_zero');
 
-  // 4b. Materials / Subs — check line items for any cost-type entries (Owner)
-  const hasInputMaterials = (job.input_materials || []).length > 0;
-  if (!hasInputMaterials && job.work_status === 'completed') flags.push('missing_materials');
+    const hasInputMaterials = (job.input_materials || []).length > 0;
+    if (!hasInputMaterials) flags.push('missing_materials');
+  }
 
-  // 5. Photos < 5
-  const photoCount = (job.attachments || []).filter(a => a.type === 'image' || /\.(jpg|jpeg|png|webp|heic)/i.test(a.filename || '')).length;
-  if (photoCount < 5) flags.push('low_photos');
-
-  // CSR flags on customer
-  const cust = job.customer || {};
-  if (!cust.last_name || cust.last_name.trim() === '') flags.push('missing_lastname');
-  if (!cust.email || cust.email.trim() === '') flags.push('missing_email');
-  if (!cust.mobile_number && !cust.home_number && !cust.work_number) flags.push('missing_phone');
-
-  // 9. Lead source
-  if (!job.lead_source && !job.customer_lead_source) flags.push('missing_leadsrc');
-
-  // 10. Job type / biz unit
-  if (!job.job_type && !job.business_unit) flags.push('missing_jobtype');
+  // ── CSR exceptions — all non-canceled jobs (should be correct at booking) ─
+  if (!isCanceled) {
+    const cust = job.customer || {};
+    if (!cust.last_name || cust.last_name.trim() === '') flags.push('missing_lastname');
+    if (!cust.email || cust.email.trim() === '') flags.push('missing_email');
+    if (!cust.mobile_number && !cust.home_number && !cust.work_number) flags.push('missing_phone');
+    if (!job.lead_source) flags.push('missing_leadsrc');
+    if (!job.job_fields?.job_type && !job.job_fields?.business_unit) flags.push('missing_jobtype');
+    if ((job.notes || []).length === 0) flags.push('missing_notes_csr');
+    // Duplicate customer check handled separately — skipping for now
+  }
 
   return flags;
 }
@@ -1711,8 +1754,58 @@ function toggleSummaryFilter(excId) {
   applyFilters();
 }
 
+function statusOrder(ws) {
+  const s = (ws || '').toLowerCase();
+  if (s === 'scheduled' || s === 'needs scheduling') return 0;
+  if (s === 'in progress' || s === 'in_progress') return 1;
+  if (s.startsWith('complete')) return 2;
+  if (s === 'canceled' || s === 'cancelled') return 3;
+  return 4;
+}
+
+function sortJobs(jobsWithFlags) {
+  return [...jobsWithFlags].sort((a, b) => {
+    const d = state.sortDir;
+    if (state.sortCol === 'job') {
+      return d * ((a.job.invoice_number || '') > (b.job.invoice_number || '') ? 1 : -1);
+    }
+    if (state.sortCol === 'customer') {
+      const aLast = (a.job.customer?.last_name || '').toLowerCase();
+      const bLast = (b.job.customer?.last_name || '').toLowerCase();
+      return d * aLast.localeCompare(bLast);
+    }
+    if (state.sortCol === 'status') {
+      return d * (statusOrder(a.job.work_status) - statusOrder(b.job.work_status));
+    }
+    if (state.sortCol === 'date') {
+      const aD = a.job.schedule?.scheduled_start || a.job.created_at || '';
+      const bD = b.job.schedule?.scheduled_start || b.job.created_at || '';
+      return d * (aD > bD ? 1 : -1);
+    }
+    return 0;
+  });
+}
+
+function setSort(col) {
+  if (state.sortCol === col) {
+    state.sortDir *= -1;
+  } else {
+    state.sortCol = col;
+    state.sortDir = 1;
+  }
+  applyFilters();
+}
+
+function sortIndicator(col) {
+  if (state.sortCol !== col) return '<span style="opacity:0.3;margin-left:4px;">↕</span>';
+  return state.sortDir === 1
+    ? '<span style="margin-left:4px;">↑</span>'
+    : '<span style="margin-left:4px;">↓</span>';
+}
+
 function renderTable(jobsWithFlags) {
   const area = document.getElementById('tableArea');
+  if (!area) return;
 
   if (jobsWithFlags.length === 0) {
     area.innerHTML = `
@@ -1720,26 +1813,32 @@ function renderTable(jobsWithFlags) {
         <div class="empty-state">
           <div class="empty-icon">✓</div>
           <div class="empty-title">No exceptions found</div>
-          <div style="font-size:13px; color:var(--text-dim); margin-top:4px;">All jobs in this range look good for the selected filters.</div>
+          <div style="font-size:13px;color:var(--text-dim);margin-top:4px;">All jobs in this range look good.</div>
         </div>
       </div>`;
     return;
   }
 
+  const sorted = sortJobs(jobsWithFlags);
+
+  const thStyle = 'cursor:pointer;user-select:none;';
   let html = `
     <div class="table-wrap">
       <div class="table-header-row">
-        <div class="th">Job #</div>
-        <div class="th">Customer</div>
+        <div class="th" style="${thStyle}" onclick="setSort('job')">Job #${sortIndicator('job')}</div>
+        <div class="th" style="${thStyle}" onclick="setSort('customer')">Customer${sortIndicator('customer')}</div>
         <div class="th">Tech</div>
-        <div class="th">Status</div>
-        <div class="th">Exceptions</div>
-        <div class="th">Scheduled</div>
+        <div class="th" style="${thStyle}" onclick="setSort('status')">Status${sortIndicator('status')}</div>
+        <div class="th">What's Missing</div>
+        <div class="th" style="${thStyle}" onclick="setSort('date')">Scheduled${sortIndicator('date')}</div>
       </div>`;
 
-  jobsWithFlags.forEach(({ job, flags }) => {
+  sorted.forEach(({ job, flags }) => {
     const techNames = (job.assigned_employees || []).map(e => e.first_name || '?').join(', ') || '—';
-    const techInitials = (job.assigned_employees || []).map(e => (e.first_name?.[0] || '') + (e.last_name?.[0] || '')).join(', ') || '?';
+    const techInitials = (job.assigned_employees || []).map(e =>
+      ((e.first_name?.[0] || '') + (e.last_name?.[0] || '')).toUpperCase()
+    ).join(' ') || '?';
+
     const s = (job.work_status || '').toLowerCase();
     const statusColor = s.startsWith('complete') ? 'var(--green)' :
       (s === 'in progress' || s === 'in_progress') ? 'var(--yellow)' :
@@ -1749,14 +1848,23 @@ function renderTable(jobsWithFlags) {
       (s === 'in progress' || s === 'in_progress') ? 'IN PROGRESS' :
       s === 'scheduled' ? 'SCHEDULED' :
       (s === 'canceled' || s === 'cancelled') ? 'CANCELED' :
-      (job.work_status || 'UNKNOWN').toUpperCase();
+      (job.work_status || '—').toUpperCase();
 
     const cust = job.customer || {};
     const custName = `${cust.first_name || ''} ${cust.last_name || ''}`.trim() || 'Unknown';
-    const custAddr = cust.address?.street || '';
+    const custAddr = job.address?.street || cust.address?.street || '';
 
-    const scheduledDate = job.scheduled_start ? new Date(job.scheduled_start).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
-    const scheduledTime = job.scheduled_start ? new Date(job.scheduled_start).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+    // Fix: scheduled_start lives on job.schedule.scheduled_start
+    const schedStart = job.schedule?.scheduled_start;
+    let scheduledDate = '—';
+    let scheduledDay = '';
+    let scheduledTime = '';
+    if (schedStart) {
+      const d = new Date(schedStart);
+      scheduledDay  = d.toLocaleDateString('en-US', { weekday: 'short' });
+      scheduledDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      scheduledTime = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+    }
 
     const flagHtml = flags.map(fid => {
       const exc = EXCEPTIONS.find(e => e.id === fid);
@@ -1782,8 +1890,8 @@ function renderTable(jobsWithFlags) {
         </div>
         <div class="td"><div class="flags-wrap">${flagHtml}</div></div>
         <div class="td">
-          <div class="job-date">${scheduledDate}</div>
-          <div class="job-date" style="font-size:11px;">${scheduledTime}</div>
+          ${schedStart ? `<div class="job-date"><span style="color:var(--text-dim);margin-right:4px;">${scheduledDay}</span>${scheduledDate}</div>
+          <div class="job-date" style="font-size:11px;">${scheduledTime}</div>` : '<div class="job-date">—</div>'}
         </div>
       </div>`;
   });
@@ -1793,14 +1901,16 @@ function renderTable(jobsWithFlags) {
 }
 
 function showLoading() {
-  document.getElementById('tableArea').innerHTML = `
-    <div class="status-bar">
-      <div class="loading-spinner"></div>
-      <div style="margin-top:8px; color:var(--text-dim);">Loading jobs from HCP...</div>
-    </div>`;
-
-  document.getElementById('totalExceptions').textContent = '—';
-  document.getElementById('totalJobs').textContent = '—';
+  const summaryLoading = document.getElementById('summaryLoading');
+  const summaryContent = document.getElementById('summaryContent');
+  if (summaryLoading) summaryLoading.style.display = '';
+  if (summaryContent) summaryContent.innerHTML = '';
+  const tableArea = document.getElementById('tableArea');
+  if (tableArea) tableArea.innerHTML = '';
+  const te = document.getElementById('totalExceptions');
+  const tj = document.getElementById('totalJobs');
+  if (te) te.textContent = '—';
+  if (tj) tj.textContent = '—';
 }
 
 function showError(msg) {
