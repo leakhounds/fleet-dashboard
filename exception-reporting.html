@@ -1433,14 +1433,30 @@ async function loadData() {
   hideError();
 
   try {
-    const [jobsData, estimatesData, employeesData] = await Promise.all([
-      hcpFetch(`/jobs?created_at_min=${encodeURIComponent(from)}&created_at_max=${encodeURIComponent(to)}&page_size=200`),
-      hcpFetch(`/estimates?page_size=200&sort_by=created_at&sort_direction=desc`),
+    // Fetch jobs by scheduled_start so date ranges reflect when work happens
+    // Add a 60-day future buffer to always capture upcoming booked jobs
+    function toHCPFuture(dateStr) {
+      const offset = new Date().getTimezoneOffset();
+      const sign = offset <= 0 ? '+' : '-';
+      const absOffset = Math.abs(offset);
+      const hh = String(Math.floor(absOffset / 60)).padStart(2, '0');
+      const mm = String(absOffset % 60).padStart(2, '0');
+      return dateStr + 'T23:59:59' + sign + hh + ':' + mm;
+    }
+    const now = new Date();
+    const futureDate = new Date(now);
+    futureDate.setDate(now.getDate() + 60);
+    const futurePad = String(futureDate.getMonth()+1).padStart(2,'0');
+    const futureStr = `${futureDate.getFullYear()}-${futurePad}-${String(futureDate.getDate()).padStart(2,'0')}`;
+
+    const [rawJobs, estimatesData, employeesData] = await Promise.all([
+      fetchAllPages(`/jobs?scheduled_start_min=${encodeURIComponent(from)}&scheduled_start_max=${encodeURIComponent(toHCPFuture(futureStr))}`, 'jobs'),
+      fetchAllPages(`/estimates?sort_by=created_at&sort_direction=desc`, 'estimates'),
       hcpFetch(`/employees`),
     ]);
 
-    state.rawJobs = (jobsData.jobs || jobsData.results || []).filter(j => !j.invoice_number?.includes('-'));
-    state.rawEstimates = estimatesData.estimates || estimatesData.results || [];
+    state.rawJobs = rawJobs.filter(j => !j.invoice_number?.includes('-'));
+    state.rawEstimates = estimatesData;
     state.employees = employeesData.employees || employeesData.results || [];
 
     populatePersonFilter();
